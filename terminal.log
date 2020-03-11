@@ -1,0 +1,8 @@
+GLPSOL: GLPK LP/MIP Solver, v4.53
+Parameter(s) specified in the command line:
+ -o listing --log terminal.log --max --mps inpt.mps
+Reading problem data from `inpt.mps'...
+Problem: OMMM
+Objective: celfuns
+inpt.mps:389: cannot convert `-1,423595178' to floating-point number
+MPS file processing error
