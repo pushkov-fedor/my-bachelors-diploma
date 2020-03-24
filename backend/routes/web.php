@@ -26,6 +26,11 @@ Route::get('/executeExcel', function() {
     $excel->Application->Visible = 1;
     $excel->Workbooks->Open("C:\model\OMMM2030.xlsm");
     $excel->Workbooks[1]->Activate();
-    $excel->Run("'C:\model\ommm_ieie_Walras.xls'!Button_Solve_GlpSol_WebPlatform", "16384");
+    $excel->Run("'C:\model\ommm_ieie_Walras.xls'!Button_Solve_GlpSol_WebPlatform", "6384");
+    header('Access-Control-Allow-Origin', '*');
     return "Success";
 });
+
+Auth::routes();
+
+Route::get('/home', 'HomeController@index')->name('home');
