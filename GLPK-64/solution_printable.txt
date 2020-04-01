@@ -1,0 +1,79 @@
+Problem:    
+Rows:       12
+Columns:    35
+Non-zeros:  70
+Status:     OPTIMAL
+Objective:  obj = 4607466.78 (MAXimum)
+
+   No.   Row name   St   Activity     Lower bound   Upper bound    Marginal
+------ ------------ -- ------------- ------------- ------------- -------------
+     1 R1           NU            15                          15       53400.8 
+     2 R2           B              0                          15 
+     3 R3           NU            15                          15         45342 
+     4 R4           NU            15                          15       43529.4 
+     5 R5           NU            11                          11         16816 
+     6 R6           B              0                           8 
+     7 R7           B              4                          40 
+     8 C1           NU            31                          31       31259.3 
+     9 C2           NU            15                          15       32207.5 
+    10 C3           NU             5                           5       60155.4 
+    11 C4           NU             5                           5       47812.2 
+    12 C5           NU             4                           4       74104.2 
+
+   No. Column name  St   Activity     Lower bound   Upper bound    Marginal
+------ ------------ -- ------------- ------------- ------------- -------------
+     1 X11          NL             0             0                       < eps
+     2 X12          B             15             0               
+     3 X13          NL             0             0                    -16460.4 
+     4 X14          NL             0             0                     -8887.2 
+     5 X15          NL             0             0                    -27086.4 
+     6 X21          NL             0             0                    -5994.76 
+     7 X22          NL             0             0                    -5994.76 
+     8 X23          NL             0             0                    -18803.6 
+     9 X24          NL             0             0                    -15220.4 
+    10 X25          NL             0             0                    -34175.6 
+    11 X31          B             15             0               
+    12 X32          B              0             0               
+    13 X33          NL             0             0                    -17061.6 
+    14 X34          NL             0             0                     -8893.2 
+    15 X35          NL             0             0                    -17227.2 
+    16 X41          B             15             0               
+    17 X42          NL             0             0                       < eps
+    18 X43          NL             0             0                    -17227.2 
+    19 X44          NL             0             0                     -8887.2 
+    20 X45          NL             0             0                    -15178.8 
+    21 X51          B              1             0               
+    22 X52          NL             0             0                       < eps
+    23 X53          B              5             0               
+    24 X54          B              5             0               
+    25 X55          NL             0             0                      -11934 
+    26 X61          NL             0             0                    -51329.3 
+    27 X62          NL             0             0                    -51329.3 
+    28 X63          NL             0             0                    -50464.1 
+    29 X64          NL             0             0                    -51368.9 
+    30 X65          NL             0             0                    -57066.5 
+    31 X71          B              0             0               
+    32 X72          NL             0             0                       < eps
+    33 X73          NL             0             0                     -3339.6 
+    34 X74          NL             0             0                     -5002.8 
+    35 X75          B              4             0               
+
+Karush-Kuhn-Tucker optimality conditions:
+
+KKT.PE: max.abs.err = 0.00e+000 on row 0
+        max.rel.err = 0.00e+000 on row 0
+        High quality
+
+KKT.PB: max.abs.err = 0.00e+000 on row 0
+        max.rel.err = 0.00e+000 on row 0
+        High quality
+
+KKT.DE: max.abs.err = 3.64e-012 on column 26
+        max.rel.err = 5.82e-017 on column 26
+        High quality
+
+KKT.DB: max.abs.err = 0.00e+000 on row 0
+        max.rel.err = 0.00e+000 on row 0
+        High quality
+
+End of output

@@ -1,47 +1,43 @@
 import React, { useState, useEffect } from "react";
+import { toJS } from "mobx";
+import { inject, observer } from "mobx-react";
+import { ExpressionInput } from "./components/ExpressionInput/ExpressionInput";
+import { MatrixInput } from "./components/MatrixInput/MatrixInput";
+import { Solution } from "./components/Solution/Solution";
 import "./App.css";
 
-function App() {
-  const [columns, setColumns] = useState([]);
-  const [rows, setRows] = useState([]);
+import {
+  matrixMultiplication,
+  matrixMultiplicationOnVariables,
+  matrixSum,
+  matrixSumOnVariables,
+  matrixMinus,
+  matrixMinusOnVariables
+} from "./utils/Math";
+import {
+  parseStringToMatrix,
+  parseMatrixToString,
+  parseSubjectTo
+} from "./utils/ExpParser";
 
-  useEffect(() => {
-    fetch("http://localhost:8000/api/mps/rows/get")
-      .then(response => response.json())
-      .then(response => setRows(response))
-      .catch(error => console.error(error));
-  }, []);
+export const App = inject("rootStore")(
+  observer(props => {
+    const matrixInputComponents = toJS(
+      props.rootStore.expStore.matrixInputComponents
+    );
+    const { calculate } = props.rootStore.expStore;
 
-  useEffect(() => {
-    fetch("http://localhost:8000/api/mps/columns/get")
-      .then(response => response.json())
-      .then(response => setColumns(response))
-      .catch(error => console.error(error));
-  }, []);
-
-  const columnEls = columns.map(column => <th scope="col">{column}</th>);
-  console.log(columns);
-
-  const rowsEls = rows.map(row => (
-    <tr>
-      <th scope="row">{row}</th>
-    </tr>
-  ));
-
-  return (
-    <div className="App">
-      <div className="container"></div>
-      <table className="table table-striped">
-        <thead>
-          <tr>
-            <th scope="col"></th>
-            {columnEls}
-          </tr>
-        </thead>
-        <tbody>{rowsEls}</tbody>
-      </table>
-    </div>
-  );
-}
-
-export default App;
+    return (
+      <div className="App">
+        <div className="container">
+          <ExpressionInput />
+          <div className="row">{matrixInputComponents}</div>
+          <button type="button" className="btn btn-primary" onClick={calculate}>
+            Calculate
+          </button>
+          <Solution />
+        </div>
+      </div>
+    );
+  })
+);

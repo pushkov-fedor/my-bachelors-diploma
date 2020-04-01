@@ -1,0 +1,38 @@
+Problem:    
+Rows:       2
+Columns:    4
+Non-zeros:  8
+Status:     OPTIMAL
+Objective:  obj = 7 (MINimum)
+
+   No.   Row name   St   Activity     Lower bound   Upper bound    Marginal
+------ ------------ -- ------------- ------------- ------------- -------------
+     1 c1           NS             2             2             =          6.25 
+     2 c2           NS             2             2             =         -2.75 
+
+   No. Column name  St   Activity     Lower bound   Upper bound    Marginal
+------ ------------ -- ------------- ------------- ------------- -------------
+     1 x1           B              4             0               
+     2 x2           B              3             0               
+     3 x3           NL             0             0                        2.25 
+     4 x4           NL             0             0                        2.75 
+
+Karush-Kuhn-Tucker optimality conditions:
+
+KKT.PE: max.abs.err = 7.11e-015 on row 2
+        max.rel.err = 8.67e-017 on row 1
+        High quality
+
+KKT.PB: max.abs.err = 0.00e+000 on row 0
+        max.rel.err = 0.00e+000 on row 0
+        High quality
+
+KKT.DE: max.abs.err = 1.42e-014 on column 2
+        max.rel.err = 1.82e-016 on column 2
+        High quality
+
+KKT.DB: max.abs.err = 0.00e+000 on row 0
+        max.rel.err = 0.00e+000 on row 0
+        High quality
+
+End of output
