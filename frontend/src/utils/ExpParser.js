@@ -1,5 +1,20 @@
 import { calculate } from "./Math";
 
+export const clearString = str => {
+  return str.trim().replace(/\s/g, "");
+};
+
+export const polynomialToLpFormat = str => {
+  return clearString(str)
+    .replace(/-/g, "+~")
+    .split("+")
+    .map(part => part.replace(/~/g, "-"))
+    .map(part => part.split("*").join(" "))
+    .map(part => `+ ${part}`)
+    .join(" ")
+    .replace(/\+\s-/g, "- ");
+};
+
 export const calculateExpression = expression => {
   return parsePlusExpression(expression);
 };
@@ -30,7 +45,7 @@ const parseDivExpression = expression => {
   return numbers.slice(1).reduce((acc, num) => acc / num, initialValue);
 };
 
-const getSign = subjectTo => {
+export const getSign = subjectTo => {
   const signLevel = [">=", "<=", ">", "=", "<"];
   return signLevel
     .map(sign => ({ sign, index: subjectTo.indexOf(sign) }))
@@ -46,6 +61,7 @@ export const parseStringToMatrix = string => {
 };
 
 export const parseMatrixToString = matrix => {
+  if (typeof matrix === "string") return matrix;
   try {
     return matrix.map(row => row.join(" ")).join("\n");
   } catch (error) {
