@@ -12,7 +12,10 @@ export const polynomialToLpFormat = str => {
     .map(part => part.split("*").join(" "))
     .map(part => `+ ${part}`)
     .join(" ")
-    .replace(/\+\s-/g, "- ");
+    .split("+ -")
+    .join("- ")
+    .split("+  -")
+    .join("-");
 };
 
 export const calculateExpression = expression => {
@@ -47,10 +50,11 @@ const parseDivExpression = expression => {
 
 export const getSign = subjectTo => {
   const signLevel = [">=", "<=", ">", "=", "<"];
-  return signLevel
+  const signs = signLevel
     .map(sign => ({ sign, index: subjectTo.indexOf(sign) }))
-    .filter(({ index }) => index != -1)
-    .shift().sign;
+    .filter(({ index }) => index != -1);
+  if (signs.length === 0) return "NOSIGN";
+  else return signs.shift().sign;
 };
 
 export const parseStringToMatrix = string => {
@@ -63,7 +67,11 @@ export const parseStringToMatrix = string => {
 export const parseMatrixToString = matrix => {
   if (typeof matrix === "string") return matrix;
   try {
-    return matrix.map(row => row.join(" ")).join("\n");
+    return matrix
+      .map(row => row.join(" "))
+      .join("\n")
+      .split("+-")
+      .join("-");
   } catch (error) {
     console.error(error);
   }

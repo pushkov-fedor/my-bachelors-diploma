@@ -168,8 +168,29 @@ const createLP = () => {
       .concat("\n");
     lp += objRow;
   });
+  if (bounds.get() !== "") {
+    lp += "Bounds\n";
+    bounds
+      .get()
+      .split("\n")
+      .map(bound => clearString(bound))
+      .map(bound => {
+        let signLeft = getSign(bound);
+        let [left, center, right] = bound.split(signLeft);
+        if (right !== undefined)
+          return [left, center, right].join(` ${signLeft} `);
+        else {
+          right = center;
+          let signRight = getSign(right);
+          right = right.split(signRight).join(` ${signRight} `);
+          return [left, right].join(` ${signLeft} `);
+        }
+      })
+      .map(bound => ` ${bound}\n`)
+      .forEach(bound => (lp += bound));
+  }
+  lp += "End\n";
   console.log(lp);
-  // console.log(lp);
 };
 
 export const expStore = {
