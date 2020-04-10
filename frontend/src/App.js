@@ -3,9 +3,8 @@ import { inject, observer } from "mobx-react";
 import { Objective } from "./components/Objective/Objective";
 import { SubjectTo } from "./components/SubjectTo/SubjectTo";
 import { Bounds } from "./components/Bounds/Bounds";
-import { FirstLevel } from "./components/model/FirstLevel/FirstLevel";
+import { FirstLevel } from "./components/FirstLevel/FirstLevel";
 import "./App.css";
-import { SecondLevel } from "./components/model/SecondLevel/SecondLevel";
 
 export const App = inject("rootStore")(
   observer((props) => {
@@ -20,7 +19,6 @@ export const App = inject("rootStore")(
             Create LP
           </button> */}
           <FirstLevel />
-          <SecondLevel />
         </div>
       </div>
     );
