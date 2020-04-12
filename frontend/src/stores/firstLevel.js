@@ -58,18 +58,20 @@ const firstLevelData = observable([
     column: 1,
     title: "",
     type: "Standart",
+    extended: false,
     data: [
       { id: "", type: "empty" },
       { id: Y, type: "column" },
-      { id: LESS, type: "row" },
-      { id: OVER, type: "row" },
-      { id: EQUAL, type: "row" },
+      { id: LESS, type: "single" },
+      { id: OVER, type: "single" },
+      { id: EQUAL, type: "single" },
     ],
   },
   {
     column: 2,
     title: "Объём производства внутри регионов",
     type: "Standart",
+    extended: false,
     data: [
       { id: X, type: "row" },
       { id: A, type: "matrix" },
@@ -82,19 +84,20 @@ const firstLevelData = observable([
     column: 3,
     title: "Конечное потребление",
     type: "Standart",
+    extended: false,
     data: [
       { id: Z, type: "single" },
       { id: P, type: "column" },
-      { id: ZU, type: "row" },
-      { id: ZL, type: "row" },
-
-      { id: ZE, type: "row" },
+      { id: ZU, type: "single" },
+      { id: ZL, type: "single" },
+      { id: ZE, type: "single" },
     ],
   },
   {
     column: 4,
     title: "Межрегиональный ввоз/вывоз",
     type: "Transport",
+    extended: false,
     data: [
       { id: T, type: "row" },
       { id: B, type: "matrix" },
@@ -107,6 +110,7 @@ const firstLevelData = observable([
     column: 5,
     title: "Импорт",
     type: "Standart",
+    extended: false,
     data: [
       { id: I, type: "row" },
       { id: C, type: "matrix" },
@@ -119,6 +123,7 @@ const firstLevelData = observable([
     column: 6,
     title: "Экспорт",
     type: "Standart",
+    extended: false,
     data: [
       { id: E, type: "row" },
       { id: D, type: "matrix" },
@@ -131,10 +136,11 @@ const firstLevelData = observable([
     column: 7,
     title: "Ограничения",
     type: "Standart",
+    extended: true,
     data: [
       [
-        { id: LEO, type: "column" },
-        { id: "", type: "hidden" },
+        { id: LEO, type: "single" },
+        { id: "", type: "empty" },
       ],
       [
         { id: S, type: "column" },
@@ -196,7 +202,7 @@ const getView = (column, { id, type }) => {
   return view;
 };
 
-export const modelStore = {
+export default {
   k,
   setK,
   transportPairs,

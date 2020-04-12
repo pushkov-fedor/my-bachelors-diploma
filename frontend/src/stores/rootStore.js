@@ -1,7 +1,9 @@
 import { expStore } from "./expStore";
-import { modelStore } from "./modelStore";
+import firstLevel from "./firstLevel";
+import secondLevel from "./secondLevel";
 
 export const rootStore = {
   expStore,
-  modelStore,
+  firstLevel,
+  secondLevel,
 };
