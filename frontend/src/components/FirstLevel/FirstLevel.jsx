@@ -3,41 +3,47 @@ import { toJS } from "mobx";
 import { inject, observer } from "mobx-react";
 import { InputK } from "../InputK/InputK";
 import { TopHeader } from "./TopHeader";
+import getView from "../../utils/getFirstLevelView";
 
 export const FirstLevel = inject("rootStore")(
   observer((props) => {
-    const firstLevelData = toJS(props.rootStore.firstLevel.firstLevelData);
-    const content = [];
-    firstLevelData.forEach(({ column, data }) => {
-      const columnContent = [];
-      data.forEach((dataItem) => {
-        let content = "";
-        let view;
-        if (Array.isArray(dataItem)) {
-          view = dataItem.map((item) => {
-            const view = props.rootStore.firstLevel.getView(column, item);
-            return <div>{view}</div>;
-          });
-        } else {
-          view = props.rootStore.firstLevel.getView(column, dataItem);
-        }
-        content = (
+    const { firstLevel, secondLevel } = props.rootStore;
+
+    const firstLevelData = toJS(firstLevel.firstLevelData);
+
+    const content = firstLevelData.map(({ column, data }) => {
+      const columnContent =
+        data.map((dataItem, row) => (
           <div
-            className="border d-flex justify-content-center align-items-center"
+            key={`cell${column}:${row}`}
+            className="border d-flex justify-content-center align-items-center f-cell"
             style={{ width: "150px", height: "100px" }}
+            onClick={() => {
+              secondLevel.setSelected([column, row]);
+            }}
           >
-            {view}
+            {getView(column, dataItem)}
           </div>
-        );
-        columnContent.push(content);
-      });
-      content.push(<div className="d-flex flex-column">{columnContent}</div>);
+        )) || [];
+      return (
+        <div className="d-flex flex-column" key={`column${column}`}>
+          {columnContent}
+        </div>
+      );
     });
     return (
       <div>
         <InputK />
+        <button
+          className="btn btn-primary mb-2"
+          onClick={() => props.setShowFullSecondLevelTable((prev) => !prev)}
+        >
+          Показать весь второй уровень
+        </button>
         <TopHeader />
-        <div className="d-flex">{content}</div>
+        <div className="d-flex noselect" style={{ cursor: "pointer" }}>
+          {content}
+        </div>
       </div>
     );
   })

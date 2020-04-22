@@ -35,27 +35,41 @@ import {
   EE,
 } from "../constants";
 
-const k = observable.box("");
+export const k = observable.box("");
 const setK = action((value) => {
   if (value === "" || value > 0) {
     k.set(value);
   }
 });
 
-const transportPairs = computed(() => {
+export const transportPairs = computed(() => {
+  if (k.get() === "") return [];
+  const pairsMatrix = [];
   const pairs = [];
-  if (k.get() === "") return pairs;
   for (let i = 1; i <= k.get(); i++) {
     for (let j = i + 1; j <= k.get(); j++) {
       pairs.push({ i, j });
     }
   }
-  return pairs;
+  for (let i = 0; i < pairs.length; i++) {
+    pairsMatrix.push([]);
+    for (let j = 0; j < k.get(); j++) {
+      pairsMatrix[i][j] = {};
+    }
+  }
+  pairs.forEach((pair, index) => {
+    const { i, j } = pair;
+    // i,j=1...k, поэтому i - 1, j - 1
+    pairsMatrix[index][i - 1] = { i, j };
+    pairsMatrix[index][j - 1] = { i: j, j: i };
+  });
+
+  return pairsMatrix;
 });
 
-const firstLevelData = observable([
+export const firstLevelData = observable([
   {
-    column: 1,
+    column: 0,
     title: "",
     type: "Standart",
     extended: false,
@@ -68,7 +82,7 @@ const firstLevelData = observable([
     ],
   },
   {
-    column: 2,
+    column: 1,
     title: "Объём производства внутри регионов",
     type: "Standart",
     extended: false,
@@ -81,7 +95,7 @@ const firstLevelData = observable([
     ],
   },
   {
-    column: 3,
+    column: 2,
     title: "Конечное потребление",
     type: "Standart",
     extended: false,
@@ -94,7 +108,7 @@ const firstLevelData = observable([
     ],
   },
   {
-    column: 4,
+    column: 3,
     title: "Межрегиональный ввоз/вывоз",
     type: "Transport",
     extended: false,
@@ -107,7 +121,7 @@ const firstLevelData = observable([
     ],
   },
   {
-    column: 5,
+    column: 4,
     title: "Импорт",
     type: "Standart",
     extended: false,
@@ -120,7 +134,7 @@ const firstLevelData = observable([
     ],
   },
   {
-    column: 6,
+    column: 5,
     title: "Экспорт",
     type: "Standart",
     extended: false,
@@ -133,19 +147,23 @@ const firstLevelData = observable([
     ],
   },
   {
+    column: 6,
+    title: "Ограничения",
+    type: "Standart",
+    extended: false,
+    data: [
+      { id: LEO, type: "single" },
+      { id: S, type: "column" },
+    ],
+  },
+  {
     column: 7,
     title: "Ограничения",
     type: "Standart",
-    extended: true,
+    extended: false,
     data: [
-      [
-        { id: LEO, type: "single" },
-        { id: "", type: "empty" },
-      ],
-      [
-        { id: S, type: "column" },
-        { id: R, type: "column" },
-      ],
+      { id: "", type: "empty" },
+      { id: R, type: "column" },
     ],
   },
 ]);
@@ -154,7 +172,6 @@ const setFirstLevelData = action((data) => {
   while (firstLevelData.length > 0) firstLevelData.pop();
   data.forEach((d) => firstLevelData.push(d));
 });
-
 const updateFirstLevelDataColumnType = (column, type) => {
   const copy = toJS(firstLevelData).slice();
   const toUpdate = copy.find((col) => col.column === column);
@@ -162,44 +179,8 @@ const updateFirstLevelDataColumnType = (column, type) => {
   toUpdate.type = type;
   setFirstLevelData(copy);
 };
-
-const getFirstLevelDataColumn = (column) => {
+export const getFirstLevelDataColumn = (column) => {
   return toJS(firstLevelData).find((c) => c.column === column) || {};
-};
-
-const getView = (column, { id, type }) => {
-  const end = k.get();
-  let view = "";
-  if (end !== "") {
-    const { type: columnType } = getFirstLevelDataColumn(column);
-    switch (type) {
-      case "row":
-        if (columnType === "Transport") {
-          const pairs = transportPairs.get();
-          view = `${id}:1-${pairs.length}`;
-        } else {
-          view = `${id}:1-${end}`;
-        }
-        break;
-      case "column":
-        view = `${id}:1|${end}`;
-        break;
-      case "single":
-        view = `${id}`;
-        break;
-      case "matrix":
-        if (columnType === "Transport") {
-          const pairs = transportPairs.get();
-          view = `${id}:1-${pairs.length}:1|${pairs.length}`;
-        } else {
-          view = `${id}:1-${end}:1|${end}`;
-        }
-        break;
-    }
-  } else {
-    view = id;
-  }
-  return view;
 };
 
 export default {
@@ -209,6 +190,4 @@ export default {
   firstLevelData,
   setFirstLevelData,
   updateFirstLevelDataColumnType,
-  getFirstLevelDataColumn,
-  getView,
 };

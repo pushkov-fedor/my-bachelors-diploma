@@ -8,7 +8,7 @@ export const InputK = inject("rootStore")(
     return (
       <div className="form-group my-2 border p-2" style={{ width: "150px" }}>
         <label htmlFor="inputK" className="text-left w-100">
-          Введите k
+          Введите r
         </label>
         <input
           type="number"
