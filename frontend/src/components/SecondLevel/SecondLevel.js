@@ -8,6 +8,7 @@ export const SecondLevel = inject("rootStore")(
     const { secondLevel } = props.rootStore;
 
     const data = toJS(secondLevel.data);
+    console.log(data)
 
     const cols = data.map((col) => {
       const items = col.map((item) => getView(item));

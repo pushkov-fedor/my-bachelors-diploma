@@ -60,8 +60,8 @@ export const transportPairs = computed(() => {
   pairs.forEach((pair, index) => {
     const { i, j } = pair;
     // i,j=1...k, поэтому i - 1, j - 1
-    pairsMatrix[index][i - 1] = { i, j };
-    pairsMatrix[index][j - 1] = { i: j, j: i };
+    pairsMatrix[index][i - 1] = { i, j: index + 1 };
+    pairsMatrix[index][j - 1] = { i: j, j: index + 1};
   });
 
   return pairsMatrix;
