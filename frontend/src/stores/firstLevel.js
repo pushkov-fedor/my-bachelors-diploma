@@ -61,7 +61,7 @@ export const transportPairs = computed(() => {
     const { i, j } = pair;
     // i,j=1...k, поэтому i - 1, j - 1
     pairsMatrix[index][i - 1] = { i, j: index + 1 };
-    pairsMatrix[index][j - 1] = { i: j, j: index + 1};
+    pairsMatrix[index][j - 1] = { i: j, j: index + 1 };
   });
 
   return pairsMatrix;
@@ -72,6 +72,7 @@ export const firstLevelData = observable([
     column: 0,
     title: "",
     type: "Standart",
+    names: "",
     extended: false,
     data: [
       { id: "", type: "empty" },
@@ -85,6 +86,7 @@ export const firstLevelData = observable([
     column: 1,
     title: "Объём производства внутри регионов",
     type: "Standart",
+    names: "",
     extended: false,
     data: [
       { id: X, type: "row" },
@@ -98,6 +100,7 @@ export const firstLevelData = observable([
     column: 2,
     title: "Конечное потребление",
     type: "Standart",
+    names: "",
     extended: false,
     data: [
       { id: Z, type: "single" },
@@ -111,6 +114,7 @@ export const firstLevelData = observable([
     column: 3,
     title: "Межрегиональный ввоз/вывоз",
     type: "Transport",
+    names: "",
     extended: false,
     data: [
       { id: T, type: "row" },
@@ -124,6 +128,7 @@ export const firstLevelData = observable([
     column: 4,
     title: "Импорт",
     type: "Standart",
+    names: "",
     extended: false,
     data: [
       { id: I, type: "row" },
@@ -137,6 +142,7 @@ export const firstLevelData = observable([
     column: 5,
     title: "Экспорт",
     type: "Standart",
+    names: "",
     extended: false,
     data: [
       { id: E, type: "row" },
@@ -150,6 +156,7 @@ export const firstLevelData = observable([
     column: 6,
     title: "Ограничения",
     type: "Standart",
+    names: "",
     extended: false,
     data: [
       { id: LEO, type: "single" },
@@ -160,6 +167,7 @@ export const firstLevelData = observable([
     column: 7,
     title: "Ограничения",
     type: "Standart",
+    names: "",
     extended: false,
     data: [
       { id: "", type: "empty" },
@@ -172,11 +180,11 @@ const setFirstLevelData = action((data) => {
   while (firstLevelData.length > 0) firstLevelData.pop();
   data.forEach((d) => firstLevelData.push(d));
 });
-const updateFirstLevelDataColumnType = (column, type) => {
+const updateFirstLevelDataField = (title, field, value) => {
   const copy = toJS(firstLevelData).slice();
-  const toUpdate = copy.find((col) => col.column === column);
-  if (toUpdate === undefined) return;
-  toUpdate.type = type;
+  const toUpdate = copy.find((col) => col.title === title);
+  if (toUpdate === undefined || toUpdate[field] === undefined) return;
+  toUpdate[field] = value;
   setFirstLevelData(copy);
 };
 export const getFirstLevelDataColumn = (column) => {
@@ -189,5 +197,5 @@ export default {
   transportPairs,
   firstLevelData,
   setFirstLevelData,
-  updateFirstLevelDataColumnType,
+  updateFirstLevelDataField,
 };

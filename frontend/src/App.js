@@ -11,8 +11,8 @@ import { SecondLevel } from "./components/SecondLevel/SecondLevel";
 import { SecondLevelItem } from "./components/SecondLevelItem";
 import { ThirdLevelItem } from "./components/ThirdLevelItem";
 import Navbar from "./components/Navbar";
-import { Industries } from "./components/Industries";
-import { Regions } from "./components/Regions";
+import { NamesList } from "./components/NamesList";
+import { Names } from "./components/Names";
 
 export const App = inject("rootStore")(
   observer((props) => {
@@ -45,9 +45,15 @@ export const App = inject("rootStore")(
                 {k !== "" && <SecondLevelItem />}
                 {selectedThird !== "" && <ThirdLevelItem />}
               </Route>
-              <Route path="/names">
-                {/* <Industries /> */}
-                <Regions />
+              <Route exact path="/names">
+                <Names />
+                {/* <Regions /> */}
+              </Route>
+              <Route path="/names/:listName">
+                <NamesList />
+              </Route>
+              <Route path="/addNames">
+                <NamesList />
               </Route>
             </Switch>
           </div>
