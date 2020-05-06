@@ -9,7 +9,10 @@ export const Names = inject("rootStore")(
     const namesList = toJS(names.names);
 
     const content = namesList.map((list) => (
-      <Link to={`/names/${list.listName}`}>{list.listName}</Link>
+      <Link to={`/names/${list.listName}`}>
+        <span style={{ color: "green" }}>[{list.listId}] </span>
+        {list.listName}
+      </Link>
     ));
     return (
       <div className="d-flex flex-column">

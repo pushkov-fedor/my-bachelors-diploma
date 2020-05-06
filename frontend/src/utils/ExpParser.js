@@ -118,3 +118,26 @@ export const firstLevelInputToSecondLevelStructure = (input) => {
     };
   }
 };
+
+export const parseFirstLevelDataDataNamesInput = (names) => {
+  let input = names;
+  input = input
+    .trim()
+    .split(";")
+    .map((part) =>
+      part
+        .split("(")
+        .map((part) => part.replace(")", ""))
+        .map((part) => (Array.isArray(part) ? part : part.replace("(", "")))
+        .filter((part) => part !== "")
+    );
+  return input;
+};
+
+export const firstLevelDataDataNamesArrayToString = (names) => {
+  return names
+    .map((name) =>
+      name.join(name.length <= 1 ? "" : "(").concat(name.length <= 1 ? "" : ")")
+    )
+    .join(";");
+};

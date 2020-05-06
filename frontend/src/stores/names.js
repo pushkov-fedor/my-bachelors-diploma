@@ -26,8 +26,6 @@ const saveList = (list) => {
   setNames(copy);
 };
 
-autorun(() => console.log(toJS(names)));
-
 export default {
   names,
   saveList,

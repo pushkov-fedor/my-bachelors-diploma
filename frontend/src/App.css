@@ -1,3 +1,7 @@
 .f-cell:hover {
   background-color: #f4f4f4;
 }
+
+.first-level-item-input::placeholder {
+  font-size: 17px;
+}

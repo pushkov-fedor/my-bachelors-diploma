@@ -1,5 +1,8 @@
 import { observable, action, autorun, reaction, toJS, computed } from "mobx";
-import { firstLevelInputToSecondLevelStructure } from "../utils/ExpParser";
+import {
+  firstLevelInputToSecondLevelStructure,
+  parseFirstLevelDataDataNamesInput,
+} from "../utils/ExpParser";
 import {
   X,
   Z,
@@ -72,11 +75,10 @@ export const firstLevelData = observable([
     column: 0,
     title: "",
     type: "Standart",
-    names: "",
     extended: false,
     data: [
       { id: "", type: "empty" },
-      { id: Y, type: "column" },
+      { id: Y, type: "column", names: [] },
       { id: LESS, type: "single" },
       { id: OVER, type: "single" },
       { id: EQUAL, type: "single" },
@@ -86,25 +88,23 @@ export const firstLevelData = observable([
     column: 1,
     title: "Объём производства внутри регионов",
     type: "Standart",
-    names: "",
     extended: false,
     data: [
-      { id: X, type: "row" },
-      { id: A, type: "matrix" },
-      { id: XU, type: "row" },
-      { id: XL, type: "row" },
-      { id: XE, type: "row" },
+      { id: X, type: "row", names: [] },
+      { id: A, type: "matrix", names: [] },
+      { id: XU, type: "row", names: [] },
+      { id: XL, type: "row", names: [] },
+      { id: XE, type: "row", names: [] },
     ],
   },
   {
     column: 2,
     title: "Конечное потребление",
     type: "Standart",
-    names: "",
     extended: false,
     data: [
       { id: Z, type: "single" },
-      { id: P, type: "column" },
+      { id: P, type: "column", names: [] },
       { id: ZU, type: "single" },
       { id: ZL, type: "single" },
       { id: ZE, type: "single" },
@@ -114,11 +114,10 @@ export const firstLevelData = observable([
     column: 3,
     title: "Межрегиональный ввоз/вывоз",
     type: "Transport",
-    names: "",
     extended: false,
     data: [
-      { id: T, type: "row" },
-      { id: B, type: "matrix" },
+      { id: T, type: "row", names: [] },
+      { id: B, type: "matrix", names: [] },
       { id: TU, type: "row" },
       { id: TL, type: "row" },
       { id: TE, type: "row" },
@@ -128,11 +127,10 @@ export const firstLevelData = observable([
     column: 4,
     title: "Импорт",
     type: "Standart",
-    names: "",
     extended: false,
     data: [
-      { id: I, type: "row" },
-      { id: C, type: "matrix" },
+      { id: I, type: "row", names: [] },
+      { id: C, type: "matrix", names: [] },
       { id: IU, type: "row" },
       { id: IL, type: "row" },
       { id: IE, type: "row" },
@@ -142,11 +140,10 @@ export const firstLevelData = observable([
     column: 5,
     title: "Экспорт",
     type: "Standart",
-    names: "",
     extended: false,
     data: [
-      { id: E, type: "row" },
-      { id: D, type: "matrix" },
+      { id: E, type: "row", names: [] },
+      { id: D, type: "matrix", names: [] },
       { id: EU, type: "row" },
       { id: EL, type: "row" },
       { id: EE, type: "row" },
@@ -154,9 +151,8 @@ export const firstLevelData = observable([
   },
   {
     column: 6,
-    title: "Ограничения",
+    title: "Тип ограничения",
     type: "Standart",
-    names: "",
     extended: false,
     data: [
       { id: LEO, type: "single" },
@@ -165,9 +161,8 @@ export const firstLevelData = observable([
   },
   {
     column: 7,
-    title: "Ограничения",
+    title: "Знаки правых частей",
     type: "Standart",
-    names: "",
     extended: false,
     data: [
       { id: "", type: "empty" },
@@ -187,6 +182,15 @@ const updateFirstLevelDataField = (title, field, value) => {
   toUpdate[field] = value;
   setFirstLevelData(copy);
 };
+const updateFirstLevelDataDataField = (column, id, field, value) => {
+  const copy = toJS(firstLevelData).slice();
+  const toUpdate = copy.find((col) => col.column === column);
+  if (toUpdate === undefined) return;
+  const data = toUpdate.data.find((d) => d.id === id);
+  if (data === undefined || data[field] === undefined) return;
+  data[field] = value;
+  setFirstLevelData(copy);
+};
 export const getFirstLevelDataColumn = (column) => {
   return toJS(firstLevelData).find((c) => c.column === column) || {};
 };
@@ -198,4 +202,5 @@ export default {
   firstLevelData,
   setFirstLevelData,
   updateFirstLevelDataField,
+  updateFirstLevelDataDataField,
 };
