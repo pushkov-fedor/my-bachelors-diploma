@@ -41,7 +41,7 @@ export const FirstLevel = inject("rootStore")(
                 type="text"
                 className="first-level-item-input border px-1"
                 style={{ width: "90%" }}
-                placeholder="Задайте имена"
+                placeholder="Размерность"
                 onChange={(e) => {
                   firstLevel.updateFirstLevelDataDataField(
                     column,
@@ -62,7 +62,6 @@ export const FirstLevel = inject("rootStore")(
     });
     return (
       <div style={{ transform: "scale(0.95)" }}>
-        <InputK />
         <button
           className="btn btn-primary mb-2"
           onClick={() => props.setShowFullSecondLevelTable((prev) => !prev)}

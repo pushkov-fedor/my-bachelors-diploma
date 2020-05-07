@@ -3,6 +3,9 @@ import {
   firstLevelInputToSecondLevelStructure,
   parseFirstLevelDataDataNamesInput,
 } from "../utils/ExpParser";
+
+import { generateShape } from "../utils/generateShape";
+
 import {
   X,
   Z,
@@ -44,6 +47,8 @@ const setK = action((value) => {
     k.set(value);
   }
 });
+
+autorun(() => generateShape());
 
 export const transportPairs = computed(() => {
   if (k.get() === "") return [];
@@ -103,7 +108,7 @@ export const firstLevelData = observable([
     type: "Standart",
     extended: false,
     data: [
-      { id: Z, type: "single" },
+      { id: Z, type: "single", names: [] },
       { id: P, type: "column", names: [] },
       { id: ZU, type: "single" },
       { id: ZL, type: "single" },
