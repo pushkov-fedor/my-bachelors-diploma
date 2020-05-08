@@ -5,6 +5,7 @@ import {
 } from "../utils/ExpParser";
 
 import { generateShape } from "../utils/generateShape";
+import getBound from "../utils/getBounds";
 
 import {
   X,
@@ -40,6 +41,7 @@ import {
   IE,
   EE,
 } from "../constants";
+import getBounds from "../utils/getBounds";
 
 export const k = observable.box("");
 const setK = action((value) => {
@@ -47,8 +49,6 @@ const setK = action((value) => {
     k.set(value);
   }
 });
-
-autorun(() => generateShape());
 
 export const transportPairs = computed(() => {
   if (k.get() === "") return [];
@@ -175,6 +175,18 @@ export const firstLevelData = observable([
     ],
   },
 ]);
+
+autorun(() => {
+  const names = "Y=X;Y*X";
+  const cellId = "A";
+
+  const column = 1;
+  const row = 1;
+  const firstLevel = toJS(firstLevelData);
+  const { leftBound, topBound } = getBounds(firstLevel, column, row);
+  const [shape, errors] = generateShape(names, cellId);
+  console.log(shape);
+});
 
 const setFirstLevelData = action((data) => {
   while (firstLevelData.length > 0) firstLevelData.pop();

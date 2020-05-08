@@ -1,9 +1,10 @@
 import create2dArray from "./create2dArray";
 
-export const generateShape = () => {
-  const cellId = "C";
-  const exp = "Y=T1|Y=T2";
-
+export const generateShape = (exp = "", cellId = "") => {
+  if (exp === "" || cellId === "") {
+    console.log("Пустые аргументы");
+    return [];
+  }
   const symbols = ["|", "=", "*", "<", ">", "<>"];
   const errors = [];
 
