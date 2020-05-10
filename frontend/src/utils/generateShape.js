@@ -1,4 +1,5 @@
 import create2dArray from "./create2dArray";
+import getLengthByListId from "./getLengthByListId";
 
 export const generateShape = (exp = "", cellId = "") => {
   if (exp === "" || cellId === "") {
@@ -88,8 +89,4 @@ export const generateShape = (exp = "", cellId = "") => {
       break;
   }
   return [result, errors];
-};
-
-const getLengthByListId = (id) => {
-  return 4;
 };

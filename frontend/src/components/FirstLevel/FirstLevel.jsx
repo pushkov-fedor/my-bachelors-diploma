@@ -16,10 +16,6 @@ export const FirstLevel = inject("rootStore")(
 
     const firstLevelData = toJS(firstLevel.firstLevelData);
 
-    console.log(
-      firstLevelDataDataNamesArrayToString(firstLevelData[0].data[1].names)
-    );
-
     const content = firstLevelData.map(({ column, data }) => {
       const columnContent =
         data.map((dataItem, row) => (

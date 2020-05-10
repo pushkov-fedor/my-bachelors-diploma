@@ -1,6 +1,6 @@
 import { observable, action, autorun, toJS, when } from "mobx";
 
-const names = observable([]);
+export const names = observable([]);
 const setNames = action((n) => {
   while (names.length > 0) names.pop();
   n.forEach((name) => names.push(name));

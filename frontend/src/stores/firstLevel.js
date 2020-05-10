@@ -1,11 +1,10 @@
 import { observable, action, autorun, reaction, toJS, computed } from "mobx";
-import {
-  firstLevelInputToSecondLevelStructure,
-  parseFirstLevelDataDataNamesInput,
-} from "../utils/ExpParser";
+import { names } from "./names";
 
 import { generateShape } from "../utils/generateShape";
 import getBound from "../utils/getBounds";
+
+import modelStructureGenerator from "../utils/modelStructureGenerator";
 
 import {
   X,
@@ -177,15 +176,43 @@ export const firstLevelData = observable([
 ]);
 
 autorun(() => {
-  const names = "Y=X;Y*X";
+  const expr = "Y=X;Y*X";
   const cellId = "A";
-
   const column = 1;
   const row = 1;
-  const firstLevel = toJS(firstLevelData);
-  const { leftBound, topBound } = getBounds(firstLevel, column, row);
-  const [shape, errors] = generateShape(names, cellId);
-  console.log(shape);
+  const errors = [];
+
+  let [second, third] = modelStructureGenerator.parseDataExpression(
+    expr,
+    errors
+  );
+
+  second = modelStructureGenerator.parseDataSubexpression(second, errors);
+  third = modelStructureGenerator.parseDataSubexpression(third, errors);
+
+  second = modelStructureGenerator.getDataForShapeGeneration(
+    2,
+    second,
+    toJS(firstLevelData),
+    column,
+    row,
+    toJS(names),
+    errors
+  );
+  third = modelStructureGenerator.getDataForShapeGeneration(
+    3,
+    third,
+    toJS(firstLevelData),
+    column,
+    row,
+    toJS(names),
+    errors
+  );
+
+  console.log("------------------");
+  console.log(second);
+  console.log(third);
+  console.log(errors);
 });
 
 const setFirstLevelData = action((data) => {
