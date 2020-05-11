@@ -1,5 +1,6 @@
 import { observable, action, autorun, reaction, toJS, computed } from "mobx";
 import { names } from "./names";
+import { errors } from "./uiStore";
 
 import { generateShape } from "../utils/generateShape";
 import getBound from "../utils/getBounds";
@@ -82,7 +83,7 @@ export const firstLevelData = observable([
     extended: false,
     data: [
       { id: "", type: "empty" },
-      { id: Y, type: "column", names: [] },
+      { id: Y, type: "column", names: [], shape: null },
       { id: LESS, type: "single" },
       { id: OVER, type: "single" },
       { id: EQUAL, type: "single" },
@@ -94,11 +95,11 @@ export const firstLevelData = observable([
     type: "Standart",
     extended: false,
     data: [
-      { id: X, type: "row", names: [] },
-      { id: A, type: "matrix", names: [] },
-      { id: XU, type: "row", names: [] },
-      { id: XL, type: "row", names: [] },
-      { id: XE, type: "row", names: [] },
+      { id: X, type: "row", names: [], shape: null },
+      { id: A, type: "matrix", names: [], shape: null },
+      { id: XU, type: "row", names: [], shape: null },
+      { id: XL, type: "row", names: [], shape: null },
+      { id: XE, type: "row", names: [], shape: null },
     ],
   },
   {
@@ -107,8 +108,8 @@ export const firstLevelData = observable([
     type: "Standart",
     extended: false,
     data: [
-      { id: Z, type: "single", names: [] },
-      { id: P, type: "column", names: [] },
+      { id: Z, type: "single", names: [], shape: null },
+      { id: P, type: "column", names: [], shape: null },
       { id: ZU, type: "single" },
       { id: ZL, type: "single" },
       { id: ZE, type: "single" },
@@ -120,8 +121,8 @@ export const firstLevelData = observable([
     type: "Transport",
     extended: false,
     data: [
-      { id: T, type: "row", names: [] },
-      { id: B, type: "matrix", names: [] },
+      { id: T, type: "row", names: [], shape: null },
+      { id: B, type: "matrix", names: [], shape: null },
       { id: TU, type: "row" },
       { id: TL, type: "row" },
       { id: TE, type: "row" },
@@ -133,8 +134,8 @@ export const firstLevelData = observable([
     type: "Standart",
     extended: false,
     data: [
-      { id: I, type: "row", names: [] },
-      { id: C, type: "matrix", names: [] },
+      { id: I, type: "row", names: [], shape: null },
+      { id: C, type: "matrix", names: [], shape: null },
       { id: IU, type: "row" },
       { id: IL, type: "row" },
       { id: IE, type: "row" },
@@ -146,8 +147,8 @@ export const firstLevelData = observable([
     type: "Standart",
     extended: false,
     data: [
-      { id: E, type: "row", names: [] },
-      { id: D, type: "matrix", names: [] },
+      { id: E, type: "row", names: [], shape: null },
+      { id: D, type: "matrix", names: [], shape: null },
       { id: EU, type: "row" },
       { id: EL, type: "row" },
       { id: EE, type: "row" },
@@ -175,79 +176,6 @@ export const firstLevelData = observable([
   },
 ]);
 
-autorun(() => {
-  const expr = "Y=T1|Y=T2;Y*T";
-  const cellId = "A";
-  const column = 1;
-  const row = 1;
-  const errors = [];
-
-  let [second, third] = modelStructureGenerator.parseDataExpression(
-    expr,
-    errors
-  );
-  if (errors.length > 0) return;
-
-  if (modelStructureGenerator.isBound(row, column)) {
-    second = modelStructureGenerator.getDataForBorderShapeGeneration(
-      second,
-      row,
-      column,
-      toJS(names),
-      errors
-    );
-    if (errors.length > 0) return;
-
-    third = modelStructureGenerator.getDataForBorderShapeGeneration(
-      third,
-      row,
-      column,
-      toJS(names),
-      errors
-    );
-    if (errors.length > 0) return;
-
-    console.log("------------------");
-    console.log(modelStructureGenerator.generateShape(second, cellId, errors));
-    // console.log(third);
-    console.log(errors);
-    return;
-  }
-
-  second = modelStructureGenerator.parseDataSubexpression(second, errors);
-  if (errors.length > 0) return;
-
-  third = modelStructureGenerator.parseDataSubexpression(third, errors);
-  if (errors.length > 0) return;
-
-  second = modelStructureGenerator.getDataForShapeGeneration(
-    2,
-    second,
-    toJS(firstLevelData),
-    column,
-    row,
-    toJS(names),
-    errors
-  );
-  if (errors.length > 0) return;
-
-  third = modelStructureGenerator.getDataForShapeGeneration(
-    3,
-    third,
-    toJS(firstLevelData),
-    column,
-    row,
-    toJS(names),
-    errors
-  );
-  if (errors.length > 0) return;
-
-  console.log("------------------");
-  console.log(modelStructureGenerator.generateShape(second, cellId, errors));
-  console.log(modelStructureGenerator.generateShape(third, cellId, errors));
-  console.log(errors);
-});
-
 const setFirstLevelData = action((data) => {
   while (firstLevelData.length > 0) firstLevelData.pop();
   data.forEach((d) => firstLevelData.push(d));
@@ -259,14 +187,19 @@ const updateFirstLevelDataField = (title, field, value) => {
   toUpdate[field] = value;
   setFirstLevelData(copy);
 };
-const updateFirstLevelDataDataField = (column, id, field, value) => {
+const updateFirstLevelDataDataField = (column, row, field, value) => {
   const copy = toJS(firstLevelData).slice();
   const toUpdate = copy.find((col) => col.column === column);
   if (toUpdate === undefined) return;
-  const data = toUpdate.data.find((d) => d.id === id);
+  const data = toUpdate.data[row];
   if (data === undefined || data[field] === undefined) return;
   data[field] = value;
   setFirstLevelData(copy);
+  if (field === "names") {
+    data.shape = modelStructureGenerator.getShape(column, row);
+    console.log(data.shape);
+    setFirstLevelData(copy);
+  }
 };
 export const getFirstLevelDataColumn = (column) => {
   return toJS(firstLevelData).find((c) => c.column === column) || {};

@@ -1,10 +1,14 @@
 import getBounds from "./getBounds";
 import isColumn from "./isColumn";
+import { errors, appendError, setErrors } from "../stores/uiStore";
+import { firstLevelData } from "../stores/firstLevel";
+import { names } from "../stores/names";
+import { toJS } from "mobx";
 
-export const parseDataExpression = (expr, errors) => {
+export const parseDataExpression = (expr) => {
   const result = expr.split(";");
   if (result.length != 2) {
-    errors.push(
+    appendError(
       "Ошибка при парсинге выражения вида Y=X;Y*X, слишком много или слишком мало ';'"
     );
     return [];
@@ -12,7 +16,7 @@ export const parseDataExpression = (expr, errors) => {
   return result;
 };
 
-export const parseDataSubexpression = (expr, errors) => {
+export const parseDataSubexpression = (expr) => {
   const symbols = ["|", "=", "*", "<", ">", "<>"];
   const parseResult = {};
   symbols.forEach((sym) => {
@@ -33,7 +37,7 @@ export const parseDataSubexpression = (expr, errors) => {
     parseResult.right === undefined &&
     parseResult.operation === undefined
   ) {
-    errors.push(
+    appendError(
       `Ошибка при парсинге подвыражения, доступные операции: ${symbols}`
     );
   }
@@ -54,10 +58,10 @@ export const isTransport = (expr) => {
   return splitted.length === 2;
 };
 
-export const getTransportLength = (expr, names, errors) => {
+export const getTransportLength = (expr, names) => {
   const [left, right] = expr.split("<>");
   if (left !== right) {
-    errors.push(
+    appendError(
       `ID для листов транспортных пар должны совпадать ${left}!==${right}`
     );
     return;
@@ -65,7 +69,7 @@ export const getTransportLength = (expr, names, errors) => {
   const listId = left;
   const list = names.find((list) => list.listId === listId);
   if (list === undefined) {
-    errors.push(`Нет листа с ID ${listId}`);
+    appendError(`Нет листа с ID ${listId}`);
     return;
   }
   const rawLen = list.names.length;
@@ -78,14 +82,14 @@ export const getTransportLength = (expr, names, errors) => {
   return { len: transportPairs.length, data: transportPairs };
 };
 
-export const getFilteredLength = (expr, names, errors) => {
+export const getFilteredLength = (expr, names) => {
   const splitted = expr.split("(").map((part) => part.replace(")", ""));
   const listId = splitted[0];
   const columnId = splitted[1];
 
   const list = names.find((list) => list.listId === listId);
   if (list === undefined) {
-    errors.push(`Нет листа с ID ${listId}`);
+    appendError(`Нет листа с ID ${listId}`);
     return;
   }
 
@@ -96,21 +100,21 @@ export const getFilteredLength = (expr, names, errors) => {
     }
   });
   if (filteredPosition === undefined) {
-    errors.push(`Нет колонки с ID ${columnId} в листе ${listId}`);
+    appendError(`Нет колонки с ID ${columnId} в листе ${listId}`);
     return;
   }
   const len = list.names.filter((name) => name[filteredPosition] !== "").length;
   return len;
 };
 
-export const getLengthByBound = (position, bound, namesFromStore, errors) => {
+export const getLengthByBound = (position, bound, namesFromStore) => {
   const { names } = bound;
   if (
     names[0] === undefined ||
     names[1] === undefined ||
     names[1][0] === undefined
   ) {
-    errors.push(`Незаполнено данные для границы ${bound.id}`);
+    appendError(`Незаполнено данные для границы ${bound.id}`);
     return [];
   }
   const listId = names[position];
@@ -119,17 +123,17 @@ export const getLengthByBound = (position, bound, namesFromStore, errors) => {
   if (isFiltered(listId))
     return {
       type: "filtered",
-      len: getFilteredLength(listId, namesFromStore, errors),
+      len: getFilteredLength(listId, namesFromStore),
     };
   if (isTransport(listId))
     return {
       type: "transport",
-      len: getTransportLength(listId, namesFromStore, errors),
+      len: getTransportLength(listId, namesFromStore),
     };
 
   const list = namesFromStore.find((list) => list.listId === listId);
   if (list === undefined) {
-    errors.push(`Нет листа с именем ${listId}`);
+    appendError(`Нет листа с именем ${listId}`);
     return [];
   }
   const len = list.names.length;
@@ -151,8 +155,8 @@ export const getDataForShapeGeneration = (
     row,
     errors
   );
-  const leftLen = getLengthByBound(level - 2, leftBound, names, errors);
-  const rightLen = getLengthByBound(level - 2, topBound, names, errors);
+  const leftLen = getLengthByBound(level - 2, leftBound, names);
+  const rightLen = getLengthByBound(level - 2, topBound, names);
   return Object.assign(exprDataObject, { left: leftLen }, { right: rightLen });
 };
 
@@ -171,7 +175,7 @@ export const getDataForBorderShapeGeneration = (
     return {
       column: isColumn(column, row),
       type: "bound",
-      len: getFilteredLength(listId, namesFromStore, errors),
+      len: getFilteredLength(listId, namesFromStore),
     };
 
   if (isTransport(listId))
@@ -179,12 +183,11 @@ export const getDataForBorderShapeGeneration = (
       column: isColumn(column, row),
       type: "bound",
       subtype: "transport",
-      len: getTransportLength(listId, namesFromStore, errors),
+      len: getTransportLength(listId, namesFromStore),
     };
-
   const list = namesFromStore.find((list) => list.listId === listId);
   if (list === undefined) {
-    errors.push(`Нет листа с именем ${listId}`);
+    appendError(`Нет листа с именем ${listId}`);
     return [];
   }
   const len = list.names.length;
@@ -195,8 +198,7 @@ export const getDataForBorderShapeGeneration = (
   };
 };
 
-export const generateShape = (dataObject, cellId, errors) => {
-  console.log(dataObject);
+export const generateShape = (dataObject, cellId) => {
   const { type, subtype, len, column } = dataObject;
   let result = [];
   if (type === "bound") {
@@ -218,7 +220,7 @@ export const generateShape = (dataObject, cellId, errors) => {
   switch (operation) {
     case "=":
       if (left.len !== top.len) {
-        errors.push(
+        appendError(
           `Для операции ${operation} строки и столбцы должны быть одинаковой длины: ${left.len}!==${top.len}`
         );
         return;
@@ -240,7 +242,7 @@ export const generateShape = (dataObject, cellId, errors) => {
       return { type: "matrix", data: result };
     case "|":
       if (top.type !== "transport") {
-        errors.push("Верхняя матрица должна быть транспортного типа (<>)");
+        appendError("Верхняя матрица должна быть транспортного типа (<>)");
         return;
       }
       for (let i = 0; i < left.len; i++) {
@@ -258,6 +260,80 @@ export const generateShape = (dataObject, cellId, errors) => {
   }
 };
 
+export const getShape = (column, row) => {
+  setErrors([]);
+  console.log("getShapeFunction");
+  const columnDataObject = toJS(firstLevelData).find(
+    (item) => item.column === column
+  );
+  if (columnDataObject === undefined) {
+    appendError(`На первом уровне нет столбца с номером ${column}`);
+    return;
+  }
+  const dataObject = columnDataObject.data[row];
+  if (dataObject === undefined) {
+    appendError(
+      `На первом уровне в столбце ${column} нет строки с номером ${row}`
+    );
+    return;
+  }
+  if (dataObject.names === undefined) {
+    appendError(`Размерности не определены для ячейки ${dataObject.id}`);
+    return;
+  }
+  if (dataObject.names.length < 2) {
+    appendError(`Незаполнены размероности для ячейки ${dataObject.id}`);
+    return;
+  }
+  const cellId = dataObject.id;
+  let [second, third] = dataObject.names;
+
+  if (errors.length > 0) return;
+  if (isBound(row, column)) {
+    second = getDataForBorderShapeGeneration(second, row, column, toJS(names));
+    if (errors.length > 0) return;
+
+    third = getDataForBorderShapeGeneration(third, row, column, toJS(names));
+    if (errors.length > 0) return;
+
+    second = generateShape(second, cellId);
+    third = generateShape(third, cellId);
+    console.log(second, third);
+    return [second, third];
+  }
+
+  second = parseDataSubexpression(second);
+  if (errors.length > 0) return;
+
+  third = parseDataSubexpression(third);
+  if (errors.length > 0) return;
+
+  second = getDataForShapeGeneration(
+    2,
+    second,
+    toJS(firstLevelData),
+    column,
+    row,
+    toJS(names)
+  );
+  if (errors.length > 0) return;
+
+  third = getDataForShapeGeneration(
+    3,
+    third,
+    toJS(firstLevelData),
+    column,
+    row,
+    toJS(names)
+  );
+  if (errors.length > 0) return;
+
+  second = generateShape(second, cellId);
+  third = generateShape(third, cellId);
+  console.log(second, third);
+  return [second, third];
+};
+
 export default {
   isBound,
   parseDataExpression,
@@ -265,4 +341,5 @@ export default {
   getDataForShapeGeneration,
   getDataForBorderShapeGeneration,
   generateShape,
+  getShape,
 };
