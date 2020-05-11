@@ -75,7 +75,7 @@ export const getTransportLength = (expr, names, errors) => {
       transportPairs.push({ i, j });
     }
   }
-  return transportPairs.length;
+  return { len: transportPairs.length, data: transportPairs };
 };
 
 export const getFilteredLength = (expr, names, errors) => {
@@ -178,6 +178,7 @@ export const getDataForBorderShapeGeneration = (
     return {
       column: isColumn(column, row),
       type: "bound",
+      subtype: "transport",
       len: getTransportLength(listId, namesFromStore, errors),
     };
 
@@ -194,10 +195,74 @@ export const getDataForBorderShapeGeneration = (
   };
 };
 
+export const generateShape = (dataObject, cellId, errors) => {
+  console.log(dataObject);
+  const { type, subtype, len, column } = dataObject;
+  let result = [];
+  if (type === "bound") {
+    if (subtype === "transport")
+      return {
+        type: column ? "column" : "row",
+        data: len.data.map((part) => `${cellId}${part.i}${part.j}`),
+      };
+    for (let i = 0; i < len; i++) {
+      result.push(`${cellId}${i + 1}`);
+    }
+    return {
+      type: column ? "column" : "row",
+      data: result,
+    };
+  }
+
+  const { operation, left, right: top } = dataObject;
+  switch (operation) {
+    case "=":
+      if (left.len !== top.len) {
+        errors.push(
+          `Для операции ${operation} строки и столбцы должны быть одинаковой длины: ${left.len}!==${top.len}`
+        );
+        return;
+      }
+      for (let i = 0; i < left.len; i++) {
+        result.push([]);
+        for (let j = 0; j < top.len; j++) {
+          result[i].push(i === j ? `${cellId}${i}${j}` : "");
+        }
+      }
+      return { type: "matrix", data: result };
+    case "*":
+      for (let i = 0; i < left.len; i++) {
+        result.push([]);
+        for (let j = 0; j < top.len; j++) {
+          result[i].push(`${cellId}${i}${j}`);
+        }
+      }
+      return { type: "matrix", data: result };
+    case "|":
+      if (top.type !== "transport") {
+        errors.push("Верхняя матрица должна быть транспортного типа (<>)");
+        return;
+      }
+      for (let i = 0; i < left.len; i++) {
+        result.push([]);
+        for (let j = 0; j < top.len.len; j++) {
+          const { i: pairsI, j: pairsJ } = top.len.data[j];
+          i === pairsI - 1
+            ? result[i].push(`${cellId}${pairsI}${pairsJ}`)
+            : i === pairsJ - 1
+            ? result[i].push(`${cellId}${pairsJ}${pairsI}`)
+            : result[i].push(null);
+        }
+      }
+      return { type: "matrix", data: result };
+  }
+};
+
 export default {
   isBound,
   parseDataExpression,
   parseDataSubexpression,
   getDataForShapeGeneration,
   getDataForBorderShapeGeneration,
+  generateShape,
 };

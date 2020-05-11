@@ -176,7 +176,7 @@ export const firstLevelData = observable([
 ]);
 
 autorun(() => {
-  const expr = "Y=X;Y*X";
+  const expr = "Y=T1|Y=T2;Y*T";
   const cellId = "A";
   const column = 1;
   const row = 1;
@@ -186,6 +186,7 @@ autorun(() => {
     expr,
     errors
   );
+  if (errors.length > 0) return;
 
   if (modelStructureGenerator.isBound(row, column)) {
     second = modelStructureGenerator.getDataForBorderShapeGeneration(
@@ -195,6 +196,8 @@ autorun(() => {
       toJS(names),
       errors
     );
+    if (errors.length > 0) return;
+
     third = modelStructureGenerator.getDataForBorderShapeGeneration(
       third,
       row,
@@ -202,15 +205,20 @@ autorun(() => {
       toJS(names),
       errors
     );
+    if (errors.length > 0) return;
+
     console.log("------------------");
-    console.log(second);
-    console.log(third);
+    console.log(modelStructureGenerator.generateShape(second, cellId, errors));
+    // console.log(third);
     console.log(errors);
     return;
   }
 
   second = modelStructureGenerator.parseDataSubexpression(second, errors);
+  if (errors.length > 0) return;
+
   third = modelStructureGenerator.parseDataSubexpression(third, errors);
+  if (errors.length > 0) return;
 
   second = modelStructureGenerator.getDataForShapeGeneration(
     2,
@@ -221,6 +229,8 @@ autorun(() => {
     toJS(names),
     errors
   );
+  if (errors.length > 0) return;
+
   third = modelStructureGenerator.getDataForShapeGeneration(
     3,
     third,
@@ -230,10 +240,11 @@ autorun(() => {
     toJS(names),
     errors
   );
+  if (errors.length > 0) return;
 
   console.log("------------------");
-  console.log(second);
-  console.log(third);
+  console.log(modelStructureGenerator.generateShape(second, cellId, errors));
+  console.log(modelStructureGenerator.generateShape(third, cellId, errors));
   console.log(errors);
 });
 
