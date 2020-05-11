@@ -1,4 +1,5 @@
 import getBounds from "./getBounds";
+import isColumn from "./isColumn";
 
 export const parseDataExpression = (expr, errors) => {
   const result = expr.split(";");
@@ -37,6 +38,10 @@ export const parseDataSubexpression = (expr, errors) => {
     );
   }
   return parseResult;
+};
+
+export const isBound = (row, col) => {
+  return row === 0 || col === 0;
 };
 
 export const isFiltered = (expr) => {
@@ -151,8 +156,48 @@ export const getDataForShapeGeneration = (
   return Object.assign(exprDataObject, { left: leftLen }, { right: rightLen });
 };
 
+export const getDataForBorderShapeGeneration = (
+  expr,
+  row,
+  column,
+  namesFromStore,
+  errors
+) => {
+  const listId = expr;
+
+  if (listId === "1") return { type: "bound", len: 1 };
+
+  if (isFiltered(listId))
+    return {
+      column: isColumn(column, row),
+      type: "bound",
+      len: getFilteredLength(listId, namesFromStore, errors),
+    };
+
+  if (isTransport(listId))
+    return {
+      column: isColumn(column, row),
+      type: "bound",
+      len: getTransportLength(listId, namesFromStore, errors),
+    };
+
+  const list = namesFromStore.find((list) => list.listId === listId);
+  if (list === undefined) {
+    errors.push(`Нет листа с именем ${listId}`);
+    return [];
+  }
+  const len = list.names.length;
+  return {
+    column: isColumn(column, row),
+    type: "bound",
+    len,
+  };
+};
+
 export default {
+  isBound,
   parseDataExpression,
   parseDataSubexpression,
   getDataForShapeGeneration,
+  getDataForBorderShapeGeneration,
 };

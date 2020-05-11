@@ -187,6 +187,28 @@ autorun(() => {
     errors
   );
 
+  if (modelStructureGenerator.isBound(row, column)) {
+    second = modelStructureGenerator.getDataForBorderShapeGeneration(
+      second,
+      row,
+      column,
+      toJS(names),
+      errors
+    );
+    third = modelStructureGenerator.getDataForBorderShapeGeneration(
+      third,
+      row,
+      column,
+      toJS(names),
+      errors
+    );
+    console.log("------------------");
+    console.log(second);
+    console.log(third);
+    console.log(errors);
+    return;
+  }
+
   second = modelStructureGenerator.parseDataSubexpression(second, errors);
   third = modelStructureGenerator.parseDataSubexpression(third, errors);
 
