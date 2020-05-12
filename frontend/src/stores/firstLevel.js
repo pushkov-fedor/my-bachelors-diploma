@@ -197,7 +197,6 @@ const updateFirstLevelDataDataField = (column, row, field, value) => {
   setFirstLevelData(copy);
   if (field === "names") {
     data.shape = modelStructureGenerator.getShape(column, row);
-    console.log(data.shape);
     setFirstLevelData(copy);
   }
 };

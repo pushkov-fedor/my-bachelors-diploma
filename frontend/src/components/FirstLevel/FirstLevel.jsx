@@ -1,10 +1,9 @@
 import React, { useState, useEffect } from "react";
 import { toJS } from "mobx";
 import { inject, observer } from "mobx-react";
-import { InputK } from "../InputK/InputK";
 import { TopHeader } from "./TopHeader";
 import { SideHeader } from "./SideHeader";
-import getView from "../../utils/getFirstLevelView";
+import getShapeView from "../../utils/getShapeView";
 import modelStructureGenerator from "../../utils/modelStructureGenerator";
 import {
   parseFirstLevelDataDataNamesInput,
@@ -62,19 +61,23 @@ export const FirstLevel = inject("rootStore")(
               )}
             </div>
             <div
-              className={`position-absolute bg-dark ${
+              className={`animate__animated animate__fadeInRight animate__faster position-absolute p-3 ${
                 displayTooltip === dataItem.id ? "d-block" : "d-none"
               }`}
               style={{
-                top: "-20px",
-                right: "-160px",
+                top: "-30px",
+                right: "-260px",
                 height: "150px",
-                width: "150px",
+                width: "250px",
                 zIndex: 100,
+                borderRadius: "5px",
+                backgroundColor: "rgba(255,255,255,.9)",
+                border: "1px solid rgba(0,0,0,.4)",
+                boxShadow: "0 4px 4px rgba(0,0,0,.15)",
               }}
+              onMouseEnter={() => setDisplayTooltip(null)}
             >
-              {dataItem.shape &&
-                dataItem.shape[0].type + dataItem.shape[0].data.length}
+              {dataItem.shape && getShapeView(dataItem.shape)}
             </div>
           </div>
         )) || [];
