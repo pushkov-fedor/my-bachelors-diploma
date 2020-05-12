@@ -3,6 +3,7 @@ import { toJS } from "mobx";
 import { inject, observer } from "mobx-react";
 import { TopHeader } from "./TopHeader";
 import { SideHeader } from "./SideHeader";
+import { Names } from "../Names";
 import getShapeView from "../../utils/getShapeView";
 import modelStructureGenerator from "../../utils/modelStructureGenerator";
 import {
@@ -12,7 +13,7 @@ import {
 
 export const FirstLevel = inject("rootStore")(
   observer((props) => {
-    const { firstLevel, secondLevel } = props.rootStore;
+    const { firstLevel, secondLevel, uiStore } = props.rootStore;
 
     const firstLevelData = toJS(firstLevel.firstLevelData);
 
@@ -32,9 +33,14 @@ export const FirstLevel = inject("rootStore")(
               key={`cell${column}:${row}`}
               className="border d-flex flex-column justify-content-center align-items-center f-cell"
               style={{ width: "150px", height: "100px" }}
-              // onClick={() => {
-              //   secondLevel.setSelected([column, row]);
-              // }}
+              onClick={(e) => {
+                if (dataItem.shape) {
+                  uiStore.setCurrentLevel(2);
+                  secondLevel.setCurrentSecondLevelShapeObject(
+                    dataItem.shape[0]
+                  );
+                }
+              }}
             >
               {`${dataItem.id}${
                 dataItem.names && dataItem.names.length !== 0
@@ -57,6 +63,7 @@ export const FirstLevel = inject("rootStore")(
                       )
                     );
                   }}
+                  onClick={(e) => e.stopPropagation()}
                 />
               )}
             </div>
@@ -72,6 +79,7 @@ export const FirstLevel = inject("rootStore")(
                 zIndex: 100,
                 borderRadius: "5px",
                 backgroundColor: "rgba(255,255,255,.9)",
+                color: "black",
                 border: "1px solid rgba(0,0,0,.4)",
                 boxShadow: "0 4px 4px rgba(0,0,0,.15)",
               }}
@@ -89,12 +97,13 @@ export const FirstLevel = inject("rootStore")(
     });
     return (
       <div style={{ transform: "scale(0.95)" }}>
-        <button
+        <Names noButton />
+        {/* <button
           className="btn btn-primary mb-2"
           onClick={() => props.setShowFullSecondLevelTable((prev) => !prev)}
         >
           Показать весь второй уровень
-        </button>
+        </button> */}
         <TopHeader />
         <div className="d-flex">
           <SideHeader />

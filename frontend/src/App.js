@@ -7,24 +7,21 @@ import { Objective } from "./components/Objective/Objective";
 import { SubjectTo } from "./components/SubjectTo/SubjectTo";
 import { Bounds } from "./components/Bounds/Bounds";
 import { FirstLevel } from "./components/FirstLevel/FirstLevel";
-import { SecondLevel } from "./components/SecondLevel/SecondLevel";
-import { SecondLevelItem } from "./components/SecondLevelItem";
-import { ThirdLevelItem } from "./components/ThirdLevelItem";
+import { SecondLevel } from "./components/SecondLevel";
+import { LevelNavigation } from "./components/LevelNavigation";
 import Navbar from "./components/Navbar";
 import { NamesList } from "./components/NamesList";
 import { Names } from "./components/Names";
+import { CSSTransition, TransitionGroup } from "react-transition-group";
 
 export const App = inject("rootStore")(
   observer((props) => {
-    const { expStore, firstLevel, thirdLevel } = props.rootStore;
+    const { expStore, uiStore } = props.rootStore;
+
+    const currentLevel = uiStore.currentLevel.get();
 
     const createLP = expStore.createLP;
-    const k = firstLevel.k.get();
-    const selectedThird = thirdLevel.selected.get();
 
-    const [showFullSecondLevelTable, setShowFullSecondLevelTable] = useState(
-      false
-    );
     return (
       <Router>
         <div className="App">
@@ -38,16 +35,43 @@ export const App = inject("rootStore")(
           </button> */}
             <Switch>
               <Route exact path="/">
-                <FirstLevel
-                  setShowFullSecondLevelTable={setShowFullSecondLevelTable}
-                />
-                {showFullSecondLevelTable && k !== "" && <SecondLevel />}
-                {k !== "" && <SecondLevelItem />}
-                {selectedThird !== "" && <ThirdLevelItem />}
+                <div
+                  className="d-flex align-items-center justify-content-center p-2"
+                  style={{ width: "100vw" }}
+                >
+                  <LevelNavigation />
+                </div>
+                <TransitionGroup>
+                  {currentLevel === 1 && (
+                    <CSSTransition
+                      key={"firstLevel"}
+                      timeout={200}
+                      classNames="fade"
+                      in={currentLevel === 1}
+                      unmountOnExit
+                    >
+                      <div>
+                        <FirstLevel />
+                      </div>
+                    </CSSTransition>
+                  )}
+                  {currentLevel === 2 && (
+                    <CSSTransition
+                      key={"secondLevel"}
+                      timeout={200}
+                      classNames="fade"
+                      in={currentLevel === 2}
+                      unmountOnExit
+                    >
+                      <div>
+                        <SecondLevel />
+                      </div>
+                    </CSSTransition>
+                  )}
+                </TransitionGroup>
               </Route>
               <Route exact path="/names">
                 <Names />
-                {/* <Regions /> */}
               </Route>
               <Route path="/names/:listName">
                 <NamesList />

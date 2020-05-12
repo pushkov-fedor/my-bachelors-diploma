@@ -3,7 +3,10 @@ import { Link } from "react-router-dom";
 
 export default function Navbar() {
   return (
-    <nav className="navbar navbar-expand-md navbar-dark bg-dark">
+    <nav
+      className="navbar navbar-expand-md navbar-dark bg-dark"
+      style={{ width: "100vw" }}
+    >
       <div className="container">
         <Link to="/" className="navbar-brand">
           ОМММ

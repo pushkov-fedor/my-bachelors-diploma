@@ -1,5 +1,8 @@
 import { observable, action, toJS, autorun } from "mobx";
 
+export const currentLevel = observable.box(1);
+export const setCurrentLevel = action((level) => currentLevel.set(level));
+
 export const errors = observable([]);
 export const setErrors = action((errs) => {
   while (errors.length > 0) errors.pop();
@@ -17,6 +20,8 @@ autorun(() => {
 });
 
 export default {
+  currentLevel,
   errors,
   appendError,
+  setCurrentLevel,
 };

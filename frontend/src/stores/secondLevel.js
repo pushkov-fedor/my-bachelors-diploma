@@ -2,6 +2,13 @@ import { observable, action, autorun, toJS } from "mobx";
 import { k, firstLevelData, transportPairs } from "./firstLevel";
 import generateData from "../utils/generateSecondLevelData";
 
+export const currentSecondLevelShapeObject = observable([]);
+export const setCurrentSecondLevelShapeObject = action((current) => {
+  while (currentSecondLevelShapeObject.length > 0)
+    currentSecondLevelShapeObject.pop();
+  currentSecondLevelShapeObject.push(current);
+});
+
 const data = observable([]);
 const setData = action((d) => {
   while (data.length > 0) data.pop();
@@ -29,4 +36,6 @@ export default {
   data,
   selected,
   setSelected,
+  setCurrentSecondLevelShapeObject,
+  currentSecondLevelShapeObject,
 };
