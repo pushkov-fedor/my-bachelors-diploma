@@ -83,7 +83,7 @@ export const firstLevelData = observable([
     extended: false,
     data: [
       { id: "", type: "empty" },
-      { id: Y, type: "column", names: [], shape: null },
+      { id: Y, type: "column", names: [], rawNames: "", shape: null },
       { id: LESS, type: "single" },
       { id: OVER, type: "single" },
       { id: EQUAL, type: "single" },
@@ -95,11 +95,11 @@ export const firstLevelData = observable([
     type: "Standart",
     extended: false,
     data: [
-      { id: X, type: "row", names: [], shape: null },
-      { id: A, type: "matrix", names: [], shape: null },
-      { id: XU, type: "row", names: [], shape: null },
-      { id: XL, type: "row", names: [], shape: null },
-      { id: XE, type: "row", names: [], shape: null },
+      { id: X, type: "row", names: [], rawNames: "", shape: null },
+      { id: A, type: "matrix", names: [], rawNames: "", shape: null },
+      { id: XU, type: "row", names: [], rawNames: "", shape: null },
+      { id: XL, type: "row", names: [], rawNames: "", shape: null },
+      { id: XE, type: "row", names: [], rawNames: "", shape: null },
     ],
   },
   {
@@ -108,8 +108,8 @@ export const firstLevelData = observable([
     type: "Standart",
     extended: false,
     data: [
-      { id: Z, type: "single", names: [], shape: null },
-      { id: P, type: "column", names: [], shape: null },
+      { id: Z, type: "single", names: [], rawNames: "", shape: null },
+      { id: P, type: "column", names: [], rawNames: "", shape: null },
       { id: ZU, type: "single" },
       { id: ZL, type: "single" },
       { id: ZE, type: "single" },
@@ -121,8 +121,8 @@ export const firstLevelData = observable([
     type: "Transport",
     extended: false,
     data: [
-      { id: T, type: "row", names: [], shape: null },
-      { id: B, type: "matrix", names: [], shape: null },
+      { id: T, type: "row", names: [], rawNames: "", shape: null },
+      { id: B, type: "matrix", names: [], rawNames: "", shape: null },
       { id: TU, type: "row" },
       { id: TL, type: "row" },
       { id: TE, type: "row" },
@@ -134,8 +134,8 @@ export const firstLevelData = observable([
     type: "Standart",
     extended: false,
     data: [
-      { id: I, type: "row", names: [], shape: null },
-      { id: C, type: "matrix", names: [], shape: null },
+      { id: I, type: "row", names: [], rawNames: "", shape: null },
+      { id: C, type: "matrix", names: [], rawNames: "", shape: null },
       { id: IU, type: "row" },
       { id: IL, type: "row" },
       { id: IE, type: "row" },
@@ -147,8 +147,8 @@ export const firstLevelData = observable([
     type: "Standart",
     extended: false,
     data: [
-      { id: E, type: "row", names: [], shape: null },
-      { id: D, type: "matrix", names: [], shape: null },
+      { id: E, type: "row", names: [], rawNames: "", shape: null },
+      { id: D, type: "matrix", names: [], rawNames: "", shape: null },
       { id: EU, type: "row" },
       { id: EL, type: "row" },
       { id: EE, type: "row" },
@@ -194,11 +194,27 @@ const updateFirstLevelDataDataField = (column, row, field, value) => {
   const data = toUpdate.data[row];
   if (data === undefined || data[field] === undefined) return;
   data[field] = value;
+  if (field === "rawNames") {
+    data.names = modelStructureGenerator.parseDataExpression(value);
+  }
   setFirstLevelData(copy);
-  if (field === "names") {
+  if (field === "rawNames") {
     data.shape = modelStructureGenerator.getShape(column, row);
     setFirstLevelData(copy);
   }
+};
+export const recalculateShapes = () => {
+  const data = toJS(firstLevelData).map((part) => {
+    const newData = part.data.map((data, index) =>
+      data.names
+        ? Object.assign(data, {
+            shape: modelStructureGenerator.getShape(part.column, index),
+          })
+        : data
+    );
+    return Object.assign(part, { data: newData });
+  });
+  setFirstLevelData(data);
 };
 export const getFirstLevelDataColumn = (column) => {
   return toJS(firstLevelData).find((c) => c.column === column) || {};

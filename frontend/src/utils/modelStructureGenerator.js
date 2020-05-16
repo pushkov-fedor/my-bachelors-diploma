@@ -262,7 +262,6 @@ export const generateShape = (dataObject, cellId) => {
 
 export const getShape = (column, row) => {
   setErrors([]);
-  console.log("getShapeFunction");
   const columnDataObject = toJS(firstLevelData).find(
     (item) => item.column === column
   );

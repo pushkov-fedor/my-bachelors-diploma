@@ -57,12 +57,11 @@ export const FirstLevel = inject("rootStore")(
                     firstLevel.updateFirstLevelDataDataField(
                       column,
                       row,
-                      "names",
-                      modelStructureGenerator.parseDataExpression(
-                        e.target.value
-                      )
+                      "rawNames",
+                      e.target.value
                     );
                   }}
+                  value={dataItem.rawNames}
                   onClick={(e) => e.stopPropagation()}
                 />
               )}

@@ -1,4 +1,5 @@
 import { observable, action, autorun, toJS, when } from "mobx";
+import { recalculateShapes } from "./firstLevel";
 
 export const names = observable([]);
 const setNames = action((n) => {
@@ -24,6 +25,7 @@ const saveList = (list) => {
     Object.assign(listFromStore, list);
   }
   setNames(copy);
+  recalculateShapes();
 };
 
 export default {
