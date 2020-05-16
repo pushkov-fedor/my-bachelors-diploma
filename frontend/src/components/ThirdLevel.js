@@ -2,24 +2,21 @@ import React from "react";
 import { inject, observer } from "mobx-react";
 import { toJS } from "mobx";
 
-export const SecondLevel = inject("rootStore")(
+export const ThirdLevel = inject("rootStore")(
   observer((props) => {
-    const { secondLevel, uiStore } = props.rootStore;
-    const secondLevelShape = toJS(secondLevel.currentSecondLevelShapeObject)[0];
+    const { thirdLevel, uiStore } = props.rootStore;
+    const thirdLevelShape = toJS(thirdLevel.currentThirdLevelShapeObject)[0];
+    console.log(toJS(thirdLevel.currentThirdLevelShapeObject));
     let content;
-    if (secondLevelShape) {
-      switch (secondLevelShape.type) {
+    if (thirdLevelShape) {
+      switch (thirdLevelShape.type) {
         case "column":
           content = (
-            <div
-              className="d-flex flex-column"
-              style={{ transform: "scale(0.95)" }}
-            >
-              {secondLevelShape.data.map((item) => (
+            <div className="d-flex flex-column">
+              {thirdLevelShape.data.map((item) => (
                 <div
                   className="border d-flex align-items-center justify-content-center"
                   style={{ width: "75px", height: "50px" }}
-                  onClick={() => uiStore.setCurrentLevel(3)}
                 >
                   {item}
                 </div>
@@ -29,12 +26,11 @@ export const SecondLevel = inject("rootStore")(
           break;
         case "row":
           content = (
-            <div className="d-flex" style={{ transform: "scale(0.95)" }}>
-              {secondLevelShape.data.map((item) => (
+            <div className="d-flex">
+              {thirdLevelShape.data.map((item) => (
                 <div
                   className="border d-flex align-items-center justify-content-center"
                   style={{ width: "75px", height: "50px" }}
-                  onClick={() => uiStore.setCurrentLevel(3)}
                 >
                   {item}
                 </div>
@@ -45,13 +41,12 @@ export const SecondLevel = inject("rootStore")(
         case "matrix":
           content = (
             <div className="d-flex flex-column">
-              {secondLevelShape.data.map((item) => (
+              {thirdLevelShape.data.map((item) => (
                 <div className="d-flex">
                   {item.map((item) => (
                     <div
                       className="border d-flex align-items-center justify-content-center"
                       style={{ width: "75px", height: "50px" }}
-                      onClick={() => uiStore.setCurrentLevel(3)}
                     >
                       {item}
                     </div>
@@ -64,9 +59,9 @@ export const SecondLevel = inject("rootStore")(
       }
     }
     return (
-      <div className="container">
-        {secondLevelShape && content}
-        {!secondLevelShape && (
+      <div className="px-5" style={{ overflowX: "auto" }}>
+        {thirdLevelShape && content}
+        {!thirdLevelShape && (
           <div className="text-center pt-4">
             Размерности для этой клетке пока не заполнены :(
           </div>

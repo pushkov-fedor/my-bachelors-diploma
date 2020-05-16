@@ -54,12 +54,17 @@ export const isFiltered = (expr) => {
 };
 
 export const isTransport = (expr) => {
-  const splitted = expr.split("<>");
-  return splitted.length === 2;
+  const signs = ["<>", "<", ">"];
+  for (let i = 0; i < signs.length; i++) {
+    const sign = signs[i];
+    const splitted = expr.split(sign);
+    if (splitted.length === 2) return { is: true, sign };
+  }
+  return { is: false };
 };
 
-export const getTransportLength = (expr, names) => {
-  const [left, right] = expr.split("<>");
+export const getTransportLength = (sign, expr, names) => {
+  const [left, right] = expr.split(sign);
   if (left !== right) {
     appendError(
       `ID для листов транспортных пар должны совпадать ${left}!==${right}`
@@ -74,11 +79,31 @@ export const getTransportLength = (expr, names) => {
   }
   const rawLen = list.names.length;
   const transportPairs = [];
-  for (let i = 1; i <= rawLen; i++) {
-    for (let j = i + 1; j <= rawLen; j++) {
-      transportPairs.push({ i, j });
-    }
+  switch (sign) {
+    case "<":
+      for (let i = 1; i <= rawLen; i++) {
+        for (let j = i + 1; j <= rawLen; j++) {
+          transportPairs.push({ i, j });
+        }
+      }
+      break;
+    case ">":
+      for (let i = rawLen; i >= 1; i--) {
+        for (let j = i - 1; j >= 1; j--) {
+          transportPairs.push({ i, j });
+        }
+      }
+      break;
+    case "<>":
+      for (let i = 1; i <= rawLen; i++) {
+        for (let j = i + 1; j <= rawLen; j++) {
+          transportPairs.push({ i, j });
+          transportPairs.push({ i: j, j: i });
+        }
+      }
+      break;
   }
+  console.log(transportPairs);
   return { len: transportPairs.length, data: transportPairs };
 };
 
@@ -125,10 +150,11 @@ export const getLengthByBound = (position, bound, namesFromStore) => {
       type: "filtered",
       len: getFilteredLength(listId, namesFromStore),
     };
-  if (isTransport(listId))
+  const isTransportObj = isTransport(listId);
+  if (isTransportObj.is)
     return {
       type: "transport",
-      len: getTransportLength(listId, namesFromStore),
+      len: getTransportLength(isTransportObj.sign, listId, namesFromStore),
     };
 
   const list = namesFromStore.find((list) => list.listId === listId);
@@ -177,13 +203,14 @@ export const getDataForBorderShapeGeneration = (
       type: "bound",
       len: getFilteredLength(listId, namesFromStore),
     };
-
-  if (isTransport(listId))
+  const isTransportObj = isTransport(listId);
+  console.log(isTransportObj);
+  if (isTransportObj.is)
     return {
       column: isColumn(column, row),
       type: "bound",
       subtype: "transport",
-      len: getTransportLength(listId, namesFromStore),
+      len: getTransportLength(isTransportObj.sign, listId, namesFromStore),
     };
   const list = namesFromStore.find((list) => list.listId === listId);
   if (list === undefined) {
@@ -242,7 +269,9 @@ export const generateShape = (dataObject, cellId) => {
       return { type: "matrix", data: result };
     case "|":
       if (top.type !== "transport") {
-        appendError("Верхняя матрица должна быть транспортного типа (<>)");
+        appendError(
+          "Верхняя матрица должна быть транспортного типа (<>, <, >)"
+        );
         return;
       }
       for (let i = 0; i < left.len; i++) {
@@ -258,6 +287,19 @@ export const generateShape = (dataObject, cellId) => {
       }
       return { type: "matrix", data: result };
   }
+};
+
+export const getShapeFrom = (shape, fromId, id) => {
+  console.log("-------------------");
+  console.log(shape);
+  console.log(fromId);
+  console.log(id);
+  if (!shape) return;
+  return shape.map((level) =>
+    Object.assign(level, {
+      data: level.data.map((item) => item.replace(fromId, id)),
+    })
+  );
 };
 
 export const getShape = (column, row) => {
@@ -341,4 +383,5 @@ export default {
   getDataForBorderShapeGeneration,
   generateShape,
   getShape,
+  getShapeFrom,
 };

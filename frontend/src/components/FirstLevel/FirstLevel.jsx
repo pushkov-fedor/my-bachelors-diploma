@@ -13,7 +13,7 @@ import {
 
 export const FirstLevel = inject("rootStore")(
   observer((props) => {
-    const { firstLevel, secondLevel, uiStore } = props.rootStore;
+    const { firstLevel, secondLevel, thirdLevel, uiStore } = props.rootStore;
 
     const firstLevelData = toJS(firstLevel.firstLevelData);
 
@@ -25,7 +25,8 @@ export const FirstLevel = inject("rootStore")(
           <div
             className="position-relative"
             onMouseEnter={() => {
-              if (dataItem.names !== undefined) setDisplayTooltip(dataItem.id);
+              if (dataItem.names || dataItem.shape)
+                setDisplayTooltip(dataItem.id);
             }}
             onMouseLeave={() => setDisplayTooltip(null)}
           >
@@ -39,6 +40,7 @@ export const FirstLevel = inject("rootStore")(
                   secondLevel.setCurrentSecondLevelShapeObject(
                     dataItem.shape[0]
                   );
+                  thirdLevel.setCurrentThirdLevelShapeObject(dataItem.shape[1]);
                 }
               }}
             >

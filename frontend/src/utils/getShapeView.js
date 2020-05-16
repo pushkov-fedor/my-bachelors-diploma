@@ -2,6 +2,7 @@ import React from "react";
 
 export default (shapeObject) => {
   const [second, third] = shapeObject;
+  if (!second || !third) return;
   let secondType, secondShape, thirdType, thirdShape;
   switch (second.type) {
     case "row":

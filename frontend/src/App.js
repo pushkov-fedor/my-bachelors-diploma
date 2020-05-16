@@ -8,6 +8,7 @@ import { SubjectTo } from "./components/SubjectTo/SubjectTo";
 import { Bounds } from "./components/Bounds/Bounds";
 import { FirstLevel } from "./components/FirstLevel/FirstLevel";
 import { SecondLevel } from "./components/SecondLevel";
+import { ThirdLevel } from "./components/ThirdLevel";
 import { LevelNavigation } from "./components/LevelNavigation";
 import Navbar from "./components/Navbar";
 import { NamesList } from "./components/NamesList";
@@ -65,6 +66,19 @@ export const App = inject("rootStore")(
                     >
                       <div>
                         <SecondLevel />
+                      </div>
+                    </CSSTransition>
+                  )}
+                  {currentLevel === 3 && (
+                    <CSSTransition
+                      key={"thirdLevel"}
+                      timeout={200}
+                      classNames="fade"
+                      in={currentLevel === 3}
+                      unmountOnExit
+                    >
+                      <div>
+                        <ThirdLevel />
                       </div>
                     </CSSTransition>
                   )}

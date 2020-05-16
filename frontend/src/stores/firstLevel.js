@@ -1,4 +1,12 @@
-import { observable, action, autorun, reaction, toJS, computed } from "mobx";
+import {
+  observable,
+  action,
+  autorun,
+  reaction,
+  toJS,
+  computed,
+  when,
+} from "mobx";
 import { names } from "./names";
 import { errors } from "./uiStore";
 
@@ -179,6 +187,7 @@ export const firstLevelData = observable([
 const setFirstLevelData = action((data) => {
   while (firstLevelData.length > 0) firstLevelData.pop();
   data.forEach((d) => firstLevelData.push(d));
+  localStorage.setItem("firstLevelData", JSON.stringify(data));
 });
 const updateFirstLevelDataField = (title, field, value) => {
   const copy = toJS(firstLevelData).slice();
@@ -200,6 +209,19 @@ const updateFirstLevelDataDataField = (column, row, field, value) => {
   setFirstLevelData(copy);
   if (field === "rawNames") {
     data.shape = modelStructureGenerator.getShape(column, row);
+    if (row === 0 || (column === 0 && row === 1)) {
+      toUpdate.data = toUpdate.data.map((d) =>
+        d.names
+          ? d
+          : Object.assign(d, {
+              shape: modelStructureGenerator.getShapeFrom(
+                data.shape,
+                data.id,
+                d.id
+              ),
+            })
+      );
+    }
     setFirstLevelData(copy);
   }
 };
@@ -219,6 +241,16 @@ export const recalculateShapes = () => {
 export const getFirstLevelDataColumn = (column) => {
   return toJS(firstLevelData).find((c) => c.column === column) || {};
 };
+
+when(
+  () => true,
+  () => {
+    const data = JSON.parse(localStorage.getItem("firstLevelData"));
+    if (data) {
+      setFirstLevelData(data);
+    }
+  }
+);
 
 export default {
   k,
