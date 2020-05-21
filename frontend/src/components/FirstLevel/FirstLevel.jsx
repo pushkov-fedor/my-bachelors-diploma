@@ -5,11 +5,7 @@ import { TopHeader } from "./TopHeader";
 import { SideHeader } from "./SideHeader";
 import { Names } from "../Names";
 import getShapeView from "../../utils/getShapeView";
-import modelStructureGenerator from "../../utils/modelStructureGenerator";
-import {
-  parseFirstLevelDataDataNamesInput,
-  firstLevelDataDataNamesArrayToString,
-} from "../../utils/ExpParser";
+import { firstLevelDataDataNamesArrayToString } from "../../utils/ExpParser";
 
 export const FirstLevel = inject("rootStore")(
   observer((props) => {
@@ -37,10 +33,8 @@ export const FirstLevel = inject("rootStore")(
               onClick={(e) => {
                 if (dataItem.shape) {
                   uiStore.setCurrentLevel(2);
-                  secondLevel.setCurrentSecondLevelShapeObject(
-                    dataItem.shape[0]
-                  );
-                  thirdLevel.setCurrentThirdLevelShapeObject(dataItem.shape[1]);
+                  secondLevel.setCurrentFirstLevelDataObject(dataItem);
+                  thirdLevel.setCurrentFirstLevelDataObject(dataItem);
                 }
               }}
             >

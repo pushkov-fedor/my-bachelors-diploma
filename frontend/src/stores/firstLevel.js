@@ -7,11 +7,7 @@ import {
   computed,
   when,
 } from "mobx";
-import { names } from "./names";
-import { errors } from "./uiStore";
-
-import { generateShape } from "../utils/generateShape";
-import getBound from "../utils/getBounds";
+import lodash from "lodash";
 
 import modelStructureGenerator from "../utils/modelStructureGenerator";
 
@@ -105,9 +101,9 @@ export const firstLevelData = observable([
     data: [
       { id: X, type: "row", names: [], rawNames: "", shape: null },
       { id: A, type: "matrix", names: [], rawNames: "", shape: null },
-      { id: XU, type: "row", names: [], rawNames: "", shape: null },
-      { id: XL, type: "row", names: [], rawNames: "", shape: null },
-      { id: XE, type: "row", names: [], rawNames: "", shape: null },
+      { id: XU, type: "row" },
+      { id: XL, type: "row" },
+      { id: XE, type: "row" },
     ],
   },
   {
@@ -196,6 +192,23 @@ const updateFirstLevelDataField = (title, field, value) => {
   toUpdate[field] = value;
   setFirstLevelData(copy);
 };
+
+export const calculateBoundsShape = (data, toUpdate, copy, row, column) => {
+  data.shape = modelStructureGenerator.getShape(column, row);
+  if ((row === 0 || (column === 0 && row === 1)) && data.shape) {
+    toUpdate.data = toUpdate.data.map((d, index) =>
+      d.names && index >= row
+        ? d
+        : Object.assign({}, d, {
+            shape: [...data.shape],
+          })
+    );
+  }
+  setFirstLevelData(copy);
+};
+
+const throttled = lodash.throttle(calculateBoundsShape, 500);
+
 const updateFirstLevelDataDataField = (column, row, field, value) => {
   const copy = toJS(firstLevelData).slice();
   const toUpdate = copy.find((col) => col.column === column);
@@ -208,23 +221,10 @@ const updateFirstLevelDataDataField = (column, row, field, value) => {
   }
   setFirstLevelData(copy);
   if (field === "rawNames") {
-    data.shape = modelStructureGenerator.getShape(column, row);
-    if (row === 0 || (column === 0 && row === 1)) {
-      toUpdate.data = toUpdate.data.map((d) =>
-        d.names
-          ? d
-          : Object.assign(d, {
-              shape: modelStructureGenerator.getShapeFrom(
-                data.shape,
-                data.id,
-                d.id
-              ),
-            })
-      );
-    }
-    setFirstLevelData(copy);
+    throttled(data, toUpdate, copy, row, column);
   }
 };
+
 export const recalculateShapes = () => {
   const data = toJS(firstLevelData).map((part) => {
     const newData = part.data.map((data, index) =>

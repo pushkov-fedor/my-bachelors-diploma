@@ -1,13 +1,13 @@
 import { observable, action } from "mobx";
 
-export const currentThirdLevelShapeObject = observable([]);
-export const setCurrentThirdLevelShapeObject = action((current) => {
-  while (currentThirdLevelShapeObject.length > 0)
-    currentThirdLevelShapeObject.pop();
-  currentThirdLevelShapeObject.push(current);
+export const currentFirstLevelDataObject = observable([]);
+export const setCurrentFirstLevelDataObject = action((current) => {
+  while (currentFirstLevelDataObject.length > 0)
+    currentFirstLevelDataObject.pop();
+  currentFirstLevelDataObject.push(current);
 });
 
 export default {
-  currentThirdLevelShapeObject,
-  setCurrentThirdLevelShapeObject,
+  currentFirstLevelDataObject,
+  setCurrentFirstLevelDataObject,
 };

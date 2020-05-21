@@ -5,7 +5,11 @@ import { toJS } from "mobx";
 export const SecondLevel = inject("rootStore")(
   observer((props) => {
     const { secondLevel, uiStore } = props.rootStore;
-    const secondLevelShape = toJS(secondLevel.currentSecondLevelShapeObject)[0];
+    const firstLevelDataObject = toJS(
+      secondLevel.currentFirstLevelDataObject
+    )[0];
+    const { id } = firstLevelDataObject;
+    const secondLevelShape = firstLevelDataObject.shape[0];
     let content;
     if (secondLevelShape) {
       switch (secondLevelShape.type) {
@@ -21,7 +25,7 @@ export const SecondLevel = inject("rootStore")(
                   style={{ width: "75px", height: "50px" }}
                   onClick={() => uiStore.setCurrentLevel(3)}
                 >
-                  {item}
+                  {`${id}${item.i}`}
                 </div>
               ))}
             </div>
@@ -36,7 +40,7 @@ export const SecondLevel = inject("rootStore")(
                   style={{ width: "75px", height: "50px" }}
                   onClick={() => uiStore.setCurrentLevel(3)}
                 >
-                  {item}
+                  {`${id}${item.i}`}
                 </div>
               ))}
             </div>
@@ -53,7 +57,7 @@ export const SecondLevel = inject("rootStore")(
                       style={{ width: "75px", height: "50px" }}
                       onClick={() => uiStore.setCurrentLevel(3)}
                     >
-                      {item}
+                      {item.i ? `${id}${item.i}${item.j}` : ""}
                     </div>
                   ))}
                 </div>

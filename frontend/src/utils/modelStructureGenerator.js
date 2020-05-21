@@ -232,10 +232,10 @@ export const generateShape = (dataObject, cellId) => {
     if (subtype === "transport")
       return {
         type: column ? "column" : "row",
-        data: len.data.map((part) => `${cellId}${part.i}${part.j}`),
+        data: len.data.map((part) => ({ i: part.i, j: part.j })),
       };
     for (let i = 0; i < len; i++) {
-      result.push(`${cellId}${i + 1}`);
+      result.push({ i: i + 1 });
     }
     return {
       type: column ? "column" : "row",
@@ -255,7 +255,7 @@ export const generateShape = (dataObject, cellId) => {
       for (let i = 0; i < left.len; i++) {
         result.push([]);
         for (let j = 0; j < top.len; j++) {
-          result[i].push(i === j ? `${cellId}${i}${j}` : "");
+          result[i].push(i === j ? { i, j } : {});
         }
       }
       return { type: "matrix", data: result };
@@ -263,7 +263,7 @@ export const generateShape = (dataObject, cellId) => {
       for (let i = 0; i < left.len; i++) {
         result.push([]);
         for (let j = 0; j < top.len; j++) {
-          result[i].push(`${cellId}${i}${j}`);
+          result[i].push({ i, j });
         }
       }
       return { type: "matrix", data: result };
@@ -279,9 +279,9 @@ export const generateShape = (dataObject, cellId) => {
         for (let j = 0; j < top.len.len; j++) {
           const { i: pairsI, j: pairsJ } = top.len.data[j];
           i === pairsI - 1
-            ? result[i].push(`${cellId}${pairsI}${pairsJ}`)
+            ? result[i].push({ i: pairsI, j: pairsJ })
             : i === pairsJ - 1
-            ? result[i].push(`${cellId}${pairsJ}${pairsI}`)
+            ? result[i].push({ i: pairsJ, j: pairsI })
             : result[i].push(null);
         }
       }

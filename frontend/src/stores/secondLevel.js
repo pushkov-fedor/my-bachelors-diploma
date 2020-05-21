@@ -1,13 +1,13 @@
 import { observable, action, autorun, toJS } from "mobx";
 
-export const currentSecondLevelShapeObject = observable([]);
-export const setCurrentSecondLevelShapeObject = action((current) => {
-  while (currentSecondLevelShapeObject.length > 0)
-    currentSecondLevelShapeObject.pop();
-  currentSecondLevelShapeObject.push(current);
+export const currentFirstLevelDataObject = observable([]);
+export const setCurrentFirstLevelDataObject = action((current) => {
+  while (currentFirstLevelDataObject.length > 0)
+    currentFirstLevelDataObject.pop();
+  currentFirstLevelDataObject.push(current);
 });
 
 export default {
-  currentSecondLevelShapeObject,
-  setCurrentSecondLevelShapeObject,
+  currentFirstLevelDataObject,
+  setCurrentFirstLevelDataObject,
 };
