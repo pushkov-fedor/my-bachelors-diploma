@@ -193,7 +193,7 @@ const updateFirstLevelDataField = (title, field, value) => {
   setFirstLevelData(copy);
 };
 
-export const calculateBoundsShape = (data, toUpdate, copy, row, column) => {
+export const calculateShape = (data, toUpdate, copy, row, column) => {
   data.shape = modelStructureGenerator.getShape(column, row);
   if ((row === 0 || (column === 0 && row === 1)) && data.shape) {
     toUpdate.data = toUpdate.data.map((d, index) =>
@@ -207,7 +207,7 @@ export const calculateBoundsShape = (data, toUpdate, copy, row, column) => {
   setFirstLevelData(copy);
 };
 
-const throttled = lodash.throttle(calculateBoundsShape, 500);
+const throttled = lodash.throttle(calculateShape, 500);
 
 const updateFirstLevelDataDataField = (column, row, field, value) => {
   const copy = toJS(firstLevelData).slice();

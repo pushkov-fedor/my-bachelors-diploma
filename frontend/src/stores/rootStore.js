@@ -4,6 +4,7 @@ import secondLevel from "./secondLevel";
 import thirdLevel from "./thirdLevel";
 import names from "./names";
 import uiStore from "./uiStore";
+import upperLevel from "./upperLevel";
 
 export const rootStore = {
   expStore,
@@ -12,4 +13,5 @@ export const rootStore = {
   thirdLevel,
   names,
   uiStore,
+  upperLevel,
 };

@@ -9,7 +9,7 @@ import { firstLevelDataDataNamesArrayToString } from "../../utils/ExpParser";
 
 export const FirstLevel = inject("rootStore")(
   observer((props) => {
-    const { firstLevel, secondLevel, thirdLevel, uiStore } = props.rootStore;
+    const { firstLevel, upperLevel, uiStore } = props.rootStore;
 
     const firstLevelData = toJS(firstLevel.firstLevelData);
 
@@ -32,9 +32,9 @@ export const FirstLevel = inject("rootStore")(
               style={{ width: "150px", height: "100px" }}
               onClick={(e) => {
                 if (dataItem.shape) {
+                  upperLevel.setCurrentFirstLevelDataObject(dataItem);
+                  upperLevel.setFirstLevelColAndRow(column, row);
                   uiStore.setCurrentLevel(2);
-                  secondLevel.setCurrentFirstLevelDataObject(dataItem);
-                  thirdLevel.setCurrentFirstLevelDataObject(dataItem);
                 }
               }}
             >

@@ -204,7 +204,6 @@ export const getDataForBorderShapeGeneration = (
       len: getFilteredLength(listId, namesFromStore),
     };
   const isTransportObj = isTransport(listId);
-  console.log(isTransportObj);
   if (isTransportObj.is)
     return {
       column: isColumn(column, row),
@@ -255,7 +254,7 @@ export const generateShape = (dataObject, cellId) => {
       for (let i = 0; i < left.len; i++) {
         result.push([]);
         for (let j = 0; j < top.len; j++) {
-          result[i].push(i === j ? { i, j } : {});
+          result[i].push(i === j ? { i: i + 1, j: j + 1 } : {});
         }
       }
       return { type: "matrix", data: result };
@@ -263,7 +262,7 @@ export const generateShape = (dataObject, cellId) => {
       for (let i = 0; i < left.len; i++) {
         result.push([]);
         for (let j = 0; j < top.len; j++) {
-          result[i].push({ i, j });
+          result[i].push({ i: i + 1, j: j + 1 });
         }
       }
       return { type: "matrix", data: result };
@@ -282,7 +281,7 @@ export const generateShape = (dataObject, cellId) => {
             ? result[i].push({ i: pairsI, j: pairsJ })
             : i === pairsJ - 1
             ? result[i].push({ i: pairsJ, j: pairsI })
-            : result[i].push(null);
+            : result[i].push({});
         }
       }
       return { type: "matrix", data: result };
@@ -339,7 +338,6 @@ export const getShape = (column, row) => {
 
     second = generateShape(second, cellId);
     third = generateShape(third, cellId);
-    console.log(second, third);
     return [second, third];
   }
 
