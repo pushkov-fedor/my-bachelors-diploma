@@ -5,7 +5,7 @@ import { isTransport } from "../utils/modelStructureGenerator";
 
 export const SecondLevel = inject("rootStore")(
   observer((props) => {
-    const { upperLevel, uiStore, firstLevel } = props.rootStore;
+    const { upperLevel, uiStore, firstLevel, names } = props.rootStore;
     const firstLevelData = toJS(firstLevel.firstLevelData);
     const firstLevelDataObject = toJS(
       upperLevel.currentFirstLevelDataObject
@@ -14,7 +14,52 @@ export const SecondLevel = inject("rootStore")(
     const secondLevelShape = firstLevelDataObject.shape[0];
     const col = upperLevel.firstLevelCol.get();
     const row = upperLevel.firstLevelRow.get();
-    const secondLevelName = firstLevelData[col].data[0].names[0];
+    const secondLevelName =
+      firstLevelData[col].data[col === 0 ? 1 : 0].names[0];
+    const topCell = firstLevelData[col].data[col === 0 ? 1 : 0].shape[0].data;
+
+    const namesArr = toJS(names.names);
+    const secondLevelNamesListId = firstLevelData[col].data[
+      col === 0 ? 1 : 0
+    ].names[0].split("<")[0];
+    const { names: listNames = [] } =
+      namesArr.find((r) => r.listId === secondLevelNamesListId) || {};
+
+    const sideNameHeaders = listNames.map((name) => (
+      <div
+        style={{
+          width: "100px",
+          height: "50px",
+          fontSize: "14px",
+          backgroundColor: "#f4f4f4",
+        }}
+        className="border d-flex align-items-center justify-content-center text-center"
+      >
+        {name[0]}
+      </div>
+    ));
+    const topNameHeaders =
+      sideNameHeaders.length < topCell.length
+        ? topCell.map(({ i, j }) => {
+            const name1 = listNames[i - 1][0];
+            const name2 = listNames[j - 1][0];
+            return (
+              <div
+                style={{
+                  width: "100px",
+                  height: "100px",
+                  fontSize: "14px",
+                  backgroundColor: "#f4f4f4",
+                }}
+                className="border d-flex align-items-center justify-content-center text-center"
+              >
+                {name1}
+                <br />
+                {name2}
+              </div>
+            );
+          })
+        : sideNameHeaders;
 
     const sideHeaders = [
       "",
@@ -25,20 +70,16 @@ export const SecondLevel = inject("rootStore")(
     ];
 
     const topHeaders = firstLevelData.map(({ title }) => title);
-
     let content;
     if (secondLevelShape) {
       switch (secondLevelShape.type) {
         case "column":
           content = (
-            <div
-              className="d-flex flex-column"
-              style={{ transform: "scale(0.95)" }}
-            >
-              {secondLevelShape.data.map((item) => (
+            <div className="d-flex flex-column">
+              {secondLevelShape.data.map((item, index) => (
                 <div
                   className="border d-flex align-items-center justify-content-center"
-                  style={{ width: "75px", height: "50px" }}
+                  style={{ width: "100px", height: "50px" }}
                   onClick={() => {
                     uiStore.setCurrentLevel(3);
                     upperLevel.setCurrentRegions(
@@ -46,6 +87,7 @@ export const SecondLevel = inject("rootStore")(
                         ? [item.i, item.j]
                         : [item.i]
                     );
+                    upperLevel.setSecondLevelColAndRow(0, index);
                   }}
                 >
                   {`${id}${item.i}${item.j ? item.j : ""}`}
@@ -56,11 +98,11 @@ export const SecondLevel = inject("rootStore")(
           break;
         case "row":
           content = (
-            <div className="d-flex" style={{ transform: "scale(0.95)" }}>
-              {secondLevelShape.data.map((item) => (
+            <div className="d-flex">
+              {secondLevelShape.data.map((item, index) => (
                 <div
                   className="border d-flex align-items-center justify-content-center"
-                  style={{ width: "75px", height: "50px" }}
+                  style={{ width: "100px", height: "50px" }}
                   onClick={() => {
                     uiStore.setCurrentLevel(3);
                     upperLevel.setCurrentRegions(
@@ -68,6 +110,7 @@ export const SecondLevel = inject("rootStore")(
                         ? [item.i, item.j]
                         : [item.i]
                     );
+                    upperLevel.setSecondLevelColAndRow(index, 0);
                   }}
                 >
                   {`${id}${item.i}${item.j ? item.j : ""}`}
@@ -79,12 +122,12 @@ export const SecondLevel = inject("rootStore")(
         case "matrix":
           content = (
             <div className="d-flex flex-column">
-              {secondLevelShape.data.map((item) => (
+              {secondLevelShape.data.map((item, col) => (
                 <div className="d-flex">
-                  {item.map((item) => (
+                  {item.map((item, row) => (
                     <div
                       className="border d-flex align-items-center justify-content-center"
-                      style={{ width: "75px", height: "50px" }}
+                      style={{ width: "100px", height: "50px" }}
                       onClick={() => {
                         uiStore.setCurrentLevel(3);
                         console.log(secondLevelName);
@@ -93,6 +136,7 @@ export const SecondLevel = inject("rootStore")(
                             ? [item.i, item.j]
                             : [item.i]
                         );
+                        upperLevel.setSecondLevelColAndRow(row, col);
                       }}
                     >
                       {item.i ? `${id}${item.i}${item.j}` : ""}
@@ -105,19 +149,35 @@ export const SecondLevel = inject("rootStore")(
           break;
       }
     }
+    const showTopNames =
+      secondLevelShape.type === "row" || secondLevelShape.type === "matrix";
+
+    const showLeftNames =
+      secondLevelShape.type === "column" || secondLevelShape.type === "matrix";
     return (
       <div className="container">
         {secondLevelShape && (
           <div>
             <div className="row py-2">
-              <div className="col-2"></div>
-              <div className="col-10 px-4">{topHeaders[col]}</div>
+              <div className="col-3 px-0"></div>
+              <div className="col-9 px-0 px-4">{topHeaders[col]}</div>
             </div>
-            <div className="row">
-              <div className="col-2 d-flex align-items-start justify-content-center text-center">
-                {sideHeaders[row]}
+            {showTopNames && (
+              <div className="row py-0">
+                <div className="col-3 px-0"></div>
+                <div className="col-9 px-0 d-flex">{topNameHeaders}</div>
               </div>
-              <div className="col-10 d-flex justify-content-start">
+            )}
+            <div className="row">
+              <div className="col-3 px-0 d-flex align-items-start justify-content-center text-center">
+                <div className="w-50">{sideHeaders[row]}</div>
+                {showLeftNames && (
+                  <div className="w-50 d-flex flex-column align-items-end">
+                    {sideNameHeaders}
+                  </div>
+                )}
+              </div>
+              <div className="col-9 px-0 d-flex justify-content-start">
                 {content}
               </div>
             </div>

@@ -8,6 +8,14 @@ export const setFirstLevelColAndRow = action((col, row) => {
   firstLevelRow.set(row);
 });
 
+export const secondLevelCol = observable.box(-1);
+export const secondLevelRow = observable.box(-1);
+
+export const setSecondLevelColAndRow = action((col, row) => {
+  secondLevelCol.set(col);
+  secondLevelRow.set(row);
+});
+
 export const currentFirstLevelDataObject = observable([]);
 export const setCurrentFirstLevelDataObject = action((current) => {
   while (currentFirstLevelDataObject.length > 0)
@@ -25,6 +33,9 @@ export default {
   firstLevelCol,
   firstLevelRow,
   setFirstLevelColAndRow,
+  secondLevelCol,
+  secondLevelRow,
+  setSecondLevelColAndRow,
   currentFirstLevelDataObject,
   setCurrentFirstLevelDataObject,
   currentRegions,

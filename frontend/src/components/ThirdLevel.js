@@ -11,24 +11,69 @@ export const ThirdLevel = inject("rootStore")(
     const firstLevelDataObject = toJS(
       upperLevel.currentFirstLevelDataObject
     )[0];
+    const secondLevelShape = firstLevelDataObject.shape[0];
     const thirdLevelShape = firstLevelDataObject.shape[1];
-    const col = upperLevel.firstLevelCol.get();
-    const row = upperLevel.firstLevelRow.get();
+    const firstLevelCol = upperLevel.firstLevelCol.get();
+    const firstLevelRow = upperLevel.firstLevelRow.get();
+
+    const secondLevelCol = upperLevel.secondLevelCol.get();
+    const secondLevelRow = upperLevel.secondLevelRow.get();
     const regions = toJS(upperLevel.currentRegions);
 
+    const topCell =
+      firstLevelData[firstLevelCol].data[firstLevelCol === 0 ? 1 : 0].shape[0]
+        .data;
+
     const namesArr = toJS(names.names);
-    const secondLevelNamesListId = firstLevelData[col].data[0].names[0].split(
-      "<"
-    )[0];
+    const secondLevelNamesListId = firstLevelData[firstLevelCol].data[
+      firstLevelCol === 0 ? 1 : 0
+    ].names[0].split("<")[0];
+    const thirdLevelNamesListId = firstLevelData[firstLevelCol].data[
+      firstLevelCol === 0 ? 1 : 0
+    ].names[1].split("<")[0];
 
     const { names: listNames = [], listName = "" } =
       namesArr.find((r) => r.listId === secondLevelNamesListId) || {};
+
+    const secondLevelSideNames = listNames.map((name) => name[0]);
+    const secondLevelTopNames =
+      secondLevelSideNames.length < topCell.length
+        ? topCell.map(({ i, j }) => {
+            const name1 = listNames[i - 1][0];
+            const name2 = listNames[j - 1][0];
+            return [name1, name2];
+          })
+        : secondLevelSideNames;
+    console.log(secondLevelTopNames, secondLevelCol);
+    const fromSecondLevelSideName = secondLevelSideNames[secondLevelRow];
+    const fromSecondLevelTopName = secondLevelTopNames[secondLevelCol];
+
+    const { names: nameHeadersList = [] } =
+      namesArr.find((r) => r.listId === thirdLevelNamesListId) || {};
 
     let currentRegions = regions.map(
       (region) => listNames[Number(region) - 1][0]
     );
 
-    console.log(namesArr);
+    const nameHeaders = (
+      <div className="d-flex">
+        {nameHeadersList.map((name) => (
+          <div
+            className="border d-flex align-items-center justify-content-center text-center"
+            style={{
+              width: "110px",
+              height: "100px",
+              backgroundColor: "#f4f4f4",
+              fontSize: "14px",
+              wordWrap: "break-word",
+              textOverflow: "ellipsis",
+            }}
+          >
+            {name[0]}
+          </div>
+        ))}
+      </div>
+    );
 
     const sideHeaders = [
       "",
@@ -39,6 +84,11 @@ export const ThirdLevel = inject("rootStore")(
     ];
     const topHeaders = firstLevelData.map(({ title }) => title);
 
+    const showTopNameHeaders =
+      thirdLevelShape.type === "row" || thirdLevelShape.type === "matrix";
+    const showSideNameHeaders =
+      thirdLevelShape.type === "column" || thirdLevelShape.type === "matrix";
+
     let content;
     if (thirdLevelShape) {
       switch (thirdLevelShape.type) {
@@ -48,7 +98,7 @@ export const ThirdLevel = inject("rootStore")(
               {thirdLevelShape.data.map((item) => (
                 <div
                   className="border d-flex align-items-center justify-content-center"
-                  style={{ width: "75px", height: "50px" }}
+                  style={{ width: "110px", height: "100px" }}
                 >
                   {}
                 </div>
@@ -62,7 +112,7 @@ export const ThirdLevel = inject("rootStore")(
               {thirdLevelShape.data.map((item) => (
                 <div
                   className="border d-flex align-items-center justify-content-center"
-                  style={{ width: "75px", height: "50px" }}
+                  style={{ width: "110px", height: "100px" }}
                 >
                   {}
                 </div>
@@ -78,7 +128,7 @@ export const ThirdLevel = inject("rootStore")(
                   {item.map((item) => (
                     <div
                       className="border d-flex align-items-center justify-content-center"
-                      style={{ width: "75px", height: "50px" }}
+                      style={{ width: "110px", height: "100px" }}
                     >
                       {}
                     </div>
@@ -91,22 +141,60 @@ export const ThirdLevel = inject("rootStore")(
       }
     }
     return (
-      <div className="px-5" style={{ overflowX: "auto" }}>
+      <div className="">
         {thirdLevelShape && (
           <div>
-            <div className="py-2">
-              {listName}:{" "}
-              <span className="text-success">{currentRegions.join("; ")}</span>
-            </div>
             <div className="row py-2">
-              <div className="col-2"></div>
-              <div className="col-10 px-4">{topHeaders[col]}</div>
+              <div className="col-3 px-0"></div>
+              <div className="col-9 px-0">{topHeaders[firstLevelCol]}</div>
             </div>
-            <div className="row">
-              <div className="col-2 d-flex align-items-start justify-content-center text-center">
-                {sideHeaders[row]}
+            {showTopNameHeaders && (
+              <div className="row py-0">
+                <div className="col-3 px-0"></div>
+                <div className="col-9 px-0 d-flex text-success">
+                  {Array.isArray(fromSecondLevelTopName)
+                    ? fromSecondLevelTopName.join(" ")
+                    : fromSecondLevelTopName}
+                </div>
               </div>
-              <div className="col-10 d-flex justify-content-start">
+            )}
+            {showTopNameHeaders && (
+              <div className="row py-0">
+                <div className="col-3 px-0"></div>
+                <div className="col-9 px-0 d-flex">{nameHeaders}</div>
+              </div>
+            )}
+            <div className="row">
+              <div className="col-3 px-0 d-flex align-items-start justify-content-center text-center">
+                <div className="w-50 ml-3 mt-4">
+                  {sideHeaders[firstLevelRow]}
+                  {showSideNameHeaders && (
+                    <p className="text-success">{fromSecondLevelSideName}</p>
+                  )}
+                </div>
+                {showSideNameHeaders && (
+                  <div className="w-50">
+                    <div className="d-flex flex-column align-items-end">
+                      {nameHeadersList.map((name) => (
+                        <div
+                          className="border d-flex align-items-center justify-content-center text-center"
+                          style={{
+                            width: "110px",
+                            height: "100px",
+                            backgroundColor: "#f4f4f4",
+                            fontSize: "14px",
+                            wordWrap: "break-word",
+                            textOverflow: "ellipsis",
+                          }}
+                        >
+                          {name[0]}
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+              </div>
+              <div className="col-9 px-0 d-flex justify-content-start">
                 {content}
               </div>
             </div>
