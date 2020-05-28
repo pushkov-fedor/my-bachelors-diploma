@@ -3,13 +3,14 @@ import React, { useState, useEffect } from "react";
 export function NamesInputHeadings(props) {
   const [headingsRaw, setHeadingsRaw] = useState("");
 
+  const headingsJoinedString = props.headings.map((h) => h.name).join("");
   useEffect(() => {
     setHeadingsRaw(
       props.headings
         .map((h) => (h.id === undefined ? h.name : `${h.id}:${h.name}`))
         .join("\t")
     );
-  }, [props.headings.map((h) => h.name).join("")]);
+  }, [headingsJoinedString, props.headings]);
 
   useEffect(() => {
     props.setHeadings(
@@ -23,7 +24,7 @@ export function NamesInputHeadings(props) {
             : { id: left, name: right };
         })
     );
-  }, [headingsRaw]);
+  }, [headingsRaw, props]);
   return (
     <textarea
       className="w-100"

@@ -1,12 +1,4 @@
-import {
-  observable,
-  action,
-  autorun,
-  reaction,
-  toJS,
-  computed,
-  when,
-} from "mobx";
+import { observable, action, toJS, computed, when } from "mobx";
 import lodash from "lodash";
 
 import modelStructureGenerator from "../utils/modelStructureGenerator";
@@ -45,7 +37,6 @@ import {
   IE,
   EE,
 } from "../constants";
-import getBounds from "../utils/getBounds";
 
 export const k = observable.box("");
 const setK = action((value) => {

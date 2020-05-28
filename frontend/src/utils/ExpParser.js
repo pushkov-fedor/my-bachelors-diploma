@@ -1,5 +1,3 @@
-import { calculate } from "./Math";
-
 export const clearString = (str) => {
   return str.trim().replace(/\s/g, "");
 };
@@ -52,7 +50,7 @@ export const getSign = (subjectTo) => {
   const signLevel = [">=", "<=", ">", "=", "<"];
   const signs = signLevel
     .map((sign) => ({ sign, index: subjectTo.indexOf(sign) }))
-    .filter(({ index }) => index != -1);
+    .filter(({ index }) => index !== -1);
   if (signs.length === 0) return "NOSIGN";
   else return signs.shift().sign;
 };
@@ -96,7 +94,7 @@ const parseInputVectorRange = (vectorRange) => {
 
 export const firstLevelInputToSecondLevelStructure = (input) => {
   const { id, value } = input;
-  const [left, right, rightRight] = value.split(":");
+  const [, right, rightRight] = value.split(":");
   if (right !== undefined) {
     const { direction: direction1, range: range1 } = parseInputVectorRange(
       right

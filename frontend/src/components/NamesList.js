@@ -50,7 +50,7 @@ export const NamesList = inject("rootStore")(
       } else {
         setRawNames(list.names.map((item) => item.join("\t")).join("\n"));
       }
-    }, []);
+    }, [listNameRouteParam, props.rootStore.names.names]);
 
     useEffect(() => {
       const data = rawNames

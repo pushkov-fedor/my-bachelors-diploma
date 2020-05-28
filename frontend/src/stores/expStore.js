@@ -6,30 +6,30 @@ import {
   parseMatrixToString,
   getSign,
   clearString,
-  polynomialToLpFormat
+  polynomialToLpFormat,
 } from "../utils/ExpParser";
 import {
   matrixSumOnVariables,
   matrixMinusOnVariables,
-  matrixMultiplicationOnVariables
+  matrixMultiplicationOnVariables,
 } from "../utils/Math";
 
 const objective = observable.box("");
-const setObjective = action(objective_ => objective.set(objective_));
+const setObjective = action((objective_) => objective.set(objective_));
 
 const objectiveType = observable.box("Maximize");
-const setObjectiveType = action(type => objectiveType.set(type));
+const setObjectiveType = action((type) => objectiveType.set(type));
 
 const subjectTo = observable.box("");
-const setSubjectTo = action(subject => subjectTo.set(subject));
+const setSubjectTo = action((subject) => subjectTo.set(subject));
 
 const bounds = observable.box("");
-const setBounds = action(bs => bounds.set(bs));
+const setBounds = action((bs) => bounds.set(bs));
 
 const subjectToParts = observable([]);
-const setSubjectToParts = action(parts => {
+const setSubjectToParts = action((parts) => {
   while (subjectToParts.length > 0) subjectToParts.pop();
-  parts.forEach(part => subjectToParts.push(part));
+  parts.forEach((part) => subjectToParts.push(part));
 });
 
 autorun(() => {
@@ -43,46 +43,48 @@ autorun(() => {
 });
 
 const matrixDataSubjectParts = observable([]);
-const setMatrixDataSubjectParts = action(parts => {
+const setMatrixDataSubjectParts = action((parts) => {
   while (matrixDataSubjectParts.length > 0) matrixDataSubjectParts.pop();
-  parts.forEach(part => matrixDataSubjectParts.push(part));
+  parts.forEach((part) => matrixDataSubjectParts.push(part));
 });
 const updateMatrixDataSubjectParts = action((id, value) => {
   const matrixDataSubjectPartsCopy = toJS(matrixDataSubjectParts).slice();
   const matrixDataObject = matrixDataSubjectPartsCopy
     .flat()
-    .find(md => md.id === id);
+    .find((md) => md.id === id);
   matrixDataObject.value = value;
   setMatrixDataSubjectParts(matrixDataSubjectPartsCopy);
 });
 
 const matrixInputSubjectParts = observable([]);
-const setMatrixInputSubjectParts = action(parts => {
+const setMatrixInputSubjectParts = action((parts) => {
   while (matrixInputSubjectParts.length > 0) matrixInputSubjectParts.pop();
-  parts.forEach(part => matrixInputSubjectParts.push(part));
+  parts.forEach((part) => matrixInputSubjectParts.push(part));
 });
 
 const calculatedParts = observable([]);
-const setCalculatedParts = action(parts => {
+const setCalculatedParts = action((parts) => {
   while (calculatedParts.length > 0) calculatedParts.pop();
-  parts.forEach(part => calculatedParts.push(part));
+  parts.forEach((part) => calculatedParts.push(part));
 });
 
 const calculate = () => {
-  const [subjLeftClear, subjSignClear, subjRightClear] = toJS(
-    subjectToParts
-  ).map(part => clearString(part));
+  const [subjLeftClear, , subjRightClear] = toJS(subjectToParts).map((part) =>
+    clearString(part)
+  );
   const resultLeft = calculateSum(subjLeftClear, 0);
-  const resultSign = toJS(matrixDataSubjectParts)[1].find(md => md.id === "&")
+  const resultSign = toJS(matrixDataSubjectParts)[1].find((md) => md.id === "&")
     .value;
   const resultRight = calculateSum(subjRightClear, 2);
   setCalculatedParts(
-    [resultLeft, resultSign, resultRight].map(res => parseMatrixToString(res))
+    [resultLeft, resultSign, resultRight].map((res) => parseMatrixToString(res))
   );
 };
 
 const calculateSum = (expression, index) => {
-  const matrices = expression.split("+").map(exp => calculateMinus(exp, index));
+  const matrices = expression
+    .split("+")
+    .map((exp) => calculateMinus(exp, index));
   const initialValue = matrices[0];
   return matrices
     .slice(1)
@@ -90,7 +92,9 @@ const calculateSum = (expression, index) => {
 };
 
 const calculateMinus = (expression, index) => {
-  const matrices = expression.split("-").map(exp => calculateMult(exp, index));
+  const matrices = expression
+    .split("-")
+    .map((exp) => calculateMult(exp, index));
   const initialValue = matrices[0];
   return matrices
     .slice(1)
@@ -100,9 +104,9 @@ const calculateMinus = (expression, index) => {
 const calculateMult = (expression, index) => {
   const matrices = expression
     .split("*")
-    .map(id =>
+    .map((id) =>
       parseStringToMatrix(
-        toJS(matrixDataSubjectParts)[index].find(data => data.id == id).value
+        toJS(matrixDataSubjectParts)[index].find((data) => data.id === id).value
       )
     );
   const initialValue = matrices[0];
@@ -113,35 +117,35 @@ const calculateMult = (expression, index) => {
 
 reaction(
   () => toJS(subjectToParts),
-  subjectToParts => {
+  (subjectToParts) => {
     const [matrixDataLeft, matrixDataSign, matrixDataRight] = toJS(
       subjectToParts
-    ).map(part =>
+    ).map((part) =>
       clearString(part)
         .split("+")
-        .map(exp => exp.split("-"))
+        .map((exp) => exp.split("-"))
         .flat()
-        .map(exp => exp.split("*"))
+        .map((exp) => exp.split("*"))
         .flat()
-        .map(exp => exp.split("/"))
+        .map((exp) => exp.split("/"))
         .flat()
-        .filter(matrix => matrix != "")
-        .map(mx => ({ id: mx, value: "" }))
+        .filter((matrix) => matrix !== "")
+        .map((mx) => ({ id: mx, value: "" }))
     );
     const [matrixInputLeft, matrixInputSign, matrixInputRight] = [
       matrixDataLeft,
       matrixDataSign,
-      matrixDataRight
-    ].map(part => part.map(md => <MatrixInput id={md.id} key={md.id} />));
+      matrixDataRight,
+    ].map((part) => part.map((md) => <MatrixInput id={md.id} key={md.id} />));
     setMatrixDataSubjectParts([
       matrixDataLeft,
       matrixDataSign,
-      matrixDataRight
+      matrixDataRight,
     ]);
     setMatrixInputSubjectParts([
       matrixInputLeft,
       matrixInputSign,
-      matrixInputRight
+      matrixInputRight,
     ]);
     setCalculatedParts(["", ""]);
   }
@@ -154,16 +158,16 @@ const createLP = () => {
   lp += ` obj: ${objectiveLP}\n`;
   lp += "Subject To\n";
   calculate();
-  const [cLeft, cSign, cRight] = toJS(calculatedParts).map(part =>
+  const [cLeft, cSign, cRight] = toJS(calculatedParts).map((part) =>
     part.split("\n")
   );
   cLeft.forEach((value, index) => {
     const objRow = [
       ` c${index + 1}: ${polynomialToLpFormat(cLeft[index])}`,
       cSign[index],
-      cRight[index]
+      cRight[index],
     ]
-      .map(part => (part === undefined ? "0" : part))
+      .map((part) => (part === undefined ? "0" : part))
       .join(" ")
       .concat("\n");
     lp += objRow;
@@ -173,8 +177,8 @@ const createLP = () => {
     bounds
       .get()
       .split("\n")
-      .map(bound => clearString(bound))
-      .map(bound => {
+      .map((bound) => clearString(bound))
+      .map((bound) => {
         let signLeft = getSign(bound);
         let [left, center, right] = bound.split(signLeft);
         if (right !== undefined)
@@ -186,8 +190,8 @@ const createLP = () => {
           return [left, right].join(` ${signLeft} `);
         }
       })
-      .map(bound => ` ${bound}\n`)
-      .forEach(bound => (lp += bound));
+      .map((bound) => ` ${bound}\n`)
+      .forEach((bound) => (lp += bound));
   }
   lp += "End\n";
   console.log(lp);
@@ -208,5 +212,5 @@ export const expStore = {
   matrixInputSubjectParts,
   calculatedParts,
   calculate,
-  createLP
+  createLP,
 };

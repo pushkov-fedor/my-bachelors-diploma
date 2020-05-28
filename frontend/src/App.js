@@ -1,11 +1,10 @@
-import React, { useState, useEffect } from "react";
+import React from "react";
 import "./App.css";
-import { toJS } from "mobx";
 import { inject, observer } from "mobx-react";
 import { BrowserRouter as Router, Switch, Route } from "react-router-dom";
-import { Objective } from "./components/Objective/Objective";
-import { SubjectTo } from "./components/SubjectTo/SubjectTo";
-import { Bounds } from "./components/Bounds/Bounds";
+// import { Objective } from "./components/Objective/Objective";
+// import { SubjectTo } from "./components/SubjectTo/SubjectTo";
+// import { Bounds } from "./components/Bounds/Bounds";
 import { FirstLevel } from "./components/FirstLevel/FirstLevel";
 import { SecondLevel } from "./components/SecondLevel";
 import { ThirdLevel } from "./components/ThirdLevel";
@@ -17,11 +16,11 @@ import { CSSTransition, TransitionGroup } from "react-transition-group";
 
 export const App = inject("rootStore")(
   observer((props) => {
-    const { expStore, uiStore } = props.rootStore;
+    const { uiStore } = props.rootStore;
 
     const currentLevel = uiStore.currentLevel.get();
 
-    const createLP = expStore.createLP;
+    // const createLP = expStore.createLP;
 
     return (
       <Router>

@@ -1,4 +1,4 @@
-import { observable, action, autorun, toJS } from "mobx";
+import { observable, action } from "mobx";
 
 export const currentFirstLevelDataObject = observable([]);
 export const setCurrentFirstLevelDataObject = action((current) => {

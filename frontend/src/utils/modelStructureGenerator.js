@@ -7,7 +7,7 @@ import { toJS } from "mobx";
 
 export const parseDataExpression = (expr) => {
   const result = expr.split(";");
-  if (result.length != 2) {
+  if (result.length !== 2) {
     appendError(
       "Ошибка при парсинге выражения вида Y=X;Y*X, слишком много или слишком мало ';'"
     );
@@ -101,6 +101,8 @@ export const getTransportLength = (sign, expr, names) => {
           transportPairs.push({ i: j, j: i });
         }
       }
+      break;
+    default:
       break;
   }
   console.log(transportPairs);
@@ -285,6 +287,8 @@ export const generateShape = (dataObject, cellId) => {
         }
       }
       return { type: "matrix", data: result };
+    default:
+      break;
   }
 };
 

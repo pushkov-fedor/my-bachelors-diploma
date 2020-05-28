@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import { toJS } from "mobx";
 import { inject, observer } from "mobx-react";
 import { TopHeader } from "./TopHeader";
@@ -93,12 +93,6 @@ export const FirstLevel = inject("rootStore")(
     return (
       <div style={{ transform: "scale(0.95)" }}>
         <Names noButton />
-        {/* <button
-          className="btn btn-primary mb-2"
-          onClick={() => props.setShowFullSecondLevelTable((prev) => !prev)}
-        >
-          Показать весь второй уровень
-        </button> */}
         <TopHeader />
         <div className="d-flex">
           <SideHeader />
