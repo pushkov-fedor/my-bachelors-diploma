@@ -130,8 +130,5 @@ export const firstLevelDataDataNamesArrayToString = (names) => {
 };
 
 export const parseFirstLevelDataNamesFilter = (expr) => {
-  const result = expr
-    .split("(")
-    .map((expr) => expr.replace("(", "").replace(")", ""));
-  console.log(result);
+  return expr.split("(").map((expr) => expr.replace("(", "").replace(")", ""));
 };

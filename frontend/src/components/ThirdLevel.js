@@ -1,5 +1,6 @@
 import React from "react";
 import { inject, observer } from "mobx-react";
+import { parseFirstLevelDataNamesFilter } from "../utils/ExpParser";
 import { toJS } from "mobx";
 
 export const ThirdLevel = inject("rootStore")(
@@ -28,9 +29,9 @@ export const ThirdLevel = inject("rootStore")(
     const secondLevelNamesListId = firstLevelData[firstLevelCol].data[
       firstLevelCol === 0 ? 1 : 0
     ].names[0].split("<")[0];
-    const thirdLevelNamesListId = firstLevelData[firstLevelCol].data[
-      firstLevelCol === 0 ? 1 : 0
-    ].names[1].split("<")[0];
+    const thirdLevelNamesListId = parseFirstLevelDataNamesFilter(
+      firstLevelData[firstLevelCol].data[firstLevelCol === 0 ? 1 : 0].names[1]
+    );
 
     const { names: listNames = [], listName = "" } =
       namesArr.find((r) => r.listId === secondLevelNamesListId) || {};
@@ -44,12 +45,19 @@ export const ThirdLevel = inject("rootStore")(
             return [name1, name2];
           })
         : secondLevelSideNames;
-    console.log(secondLevelTopNames, secondLevelCol);
     const fromSecondLevelSideName = secondLevelSideNames[secondLevelRow];
     const fromSecondLevelTopName = secondLevelTopNames[secondLevelCol];
 
-    const { names: nameHeadersList = [] } =
-      namesArr.find((r) => r.listId === thirdLevelNamesListId) || {};
+    let { names: nameHeadersList = [], headings = [] } =
+      namesArr.find((r) => r.listId === thirdLevelNamesListId[0]) || {};
+    const filterIndex = headings.findIndex(
+      ({ id = "" }) => id === thirdLevelNamesListId[1]
+    );
+    if (filterIndex !== -1) {
+      nameHeadersList = nameHeadersList.filter(
+        (name) => name[filterIndex] === "1"
+      );
+    }
 
     let currentRegions = regions.map(
       (region) => listNames[Number(region) - 1][0]
@@ -88,6 +96,7 @@ export const ThirdLevel = inject("rootStore")(
       thirdLevelShape.type === "row" || thirdLevelShape.type === "matrix";
     const showSideNameHeaders =
       thirdLevelShape.type === "column" || thirdLevelShape.type === "matrix";
+    console.log(nameHeadersList);
 
     let content;
     if (thirdLevelShape) {
