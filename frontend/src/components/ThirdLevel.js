@@ -1,6 +1,6 @@
-import React from "react";
+import React, { useState } from "react";
 import { inject, observer } from "mobx-react";
-import { toJS } from "mobx";
+import { toJS, set } from "mobx";
 import { parseFirstLevelDataNamesFilter } from "../utils/ExpParser";
 import getNameHeadersForThirdLevel from "../utils/getNameHeadersForThirdLevel";
 import getCurrentHeadersFomFirstLevel from "../utils/getCurrentHeadersFomFirstLevel";
@@ -65,12 +65,121 @@ export const ThirdLevel = inject("rootStore")(
     const showSideNameHeaders =
       thirdLevelShape.type === "column" || thirdLevelShape.type === "matrix";
 
-    const content = getThirdLevelModelView(thirdLevelShape);
+    const currentThirdLevelModel = toJS(upperLevel.currentThirdLevelModel)[0];
+    const content = getThirdLevelModelView(currentThirdLevelModel);
+
+    const [textAreaValue, setTextAreaValue] = useState("");
+    const [inputValue, setInputValue] = useState("");
+    const thirdLevelRowForEdit = upperLevel.thirdLevelRowForEdit.get();
+    const thirdLevelColForEdit = upperLevel.thirdLevelColForEdit.get();
 
     return (
       <div className="">
         {thirdLevelShape && (
           <div>
+            <div className="row py-2 d-flex justify-content-center">
+              <div className="col-6 px-0">
+                <button
+                  type="button"
+                  className="btn btn-primary"
+                  data-toggle="modal"
+                  data-target="#inputThirdLevelData"
+                >
+                  Добавить данные
+                </button>
+                <div
+                  className="modal fade"
+                  id="inputThirdLevelData"
+                  tabIndex="-1"
+                  role="dialog"
+                  aria-labelledby="exampleModalCenterTitle"
+                  aria-hidden="true"
+                >
+                  <div
+                    className="modal-dialog modal-dialog-centered"
+                    role="document"
+                  >
+                    <div className="modal-content">
+                      <div className="modal-header">
+                        <h5 className="modal-title" id="exampleModalLongTitle">
+                          Добавление данных
+                        </h5>
+                        <button
+                          type="button"
+                          className="close"
+                          data-dismiss="modal"
+                          aria-label="Close"
+                        >
+                          <span aria-hidden="true">&times;</span>
+                        </button>
+                      </div>
+                      <div className="modal-body" style={{ overflowX: "auto" }}>
+                        {thirdLevelColForEdit === "" &&
+                        thirdLevelRowForEdit === "" ? (
+                          <textarea
+                            className="w-100"
+                            rows="10"
+                            wrap="off"
+                            value={textAreaValue}
+                            onChange={(e) => {
+                              setTextAreaValue(e.target.value);
+                              upperLevel.updateThirdLevelModel(e.target.value);
+                            }}
+                          />
+                        ) : (
+                          <input
+                            className="w-100"
+                            type="text"
+                            value={inputValue}
+                            onChange={(e) => {
+                              setInputValue(e.target.value);
+                              upperLevel.updateThirdLevelModelByOne(
+                                e.target.value,
+                                thirdLevelRowForEdit,
+                                thirdLevelColForEdit
+                              );
+                            }}
+                          />
+                        )}
+                      </div>
+                      <div className="modal-footer">
+                        <button
+                          type="button"
+                          className="btn btn-danger"
+                          data-dismiss="modal"
+                          onClick={() => {
+                            upperLevel.resetThirdLevelModel();
+                            upperLevel.setThirdLevelRowAndColForEdit(
+                              "-1",
+                              "-1"
+                            );
+                            setTextAreaValue("");
+                            setInputValue("");
+                          }}
+                        >
+                          Закрыть
+                        </button>
+                        <button
+                          type="button"
+                          className="btn btn-success"
+                          data-dismiss="modal"
+                          onClick={() => {
+                            setTextAreaValue("");
+                            setInputValue("");
+                            upperLevel.setThirdLevelRowAndColForEdit(
+                              "-1",
+                              "-1"
+                            );
+                          }}
+                        >
+                          Сохранить
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
             <div className="row py-2">
               <div className="col-3 px-0"></div>
               <div className="col-9 px-0">{topHeaderFromFirstLevel}</div>
