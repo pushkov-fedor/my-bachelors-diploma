@@ -1,11 +1,12 @@
 import React, { useState } from "react";
 import { toJS } from "mobx";
 import { inject, observer } from "mobx-react";
-import { TopHeader } from "./TopHeader";
-import { SideHeader } from "./SideHeader";
 import { Names } from "../Names";
 import getShapeView from "../../utils/getShapeView";
 import { firstLevelDataDataNamesArrayToString } from "../../utils/ExpParser";
+import translateDataFromColsToRows from "../../utils/translateDataFromColsToRows";
+import combineDataWithHeaders from "../../utils/combineDataWithHeaders";
+import ReactDataSheet from "react-datasheet";
 
 export const FirstLevel = inject("rootStore")(
   observer((props) => {
@@ -13,96 +14,77 @@ export const FirstLevel = inject("rootStore")(
 
     const firstLevelData = toJS(firstLevel.firstLevelData);
 
-    const [displayTooltip, setDisplayTooltip] = useState(null);
-
-    const content = firstLevelData.map(({ column, data }) => {
-      const columnContent =
-        data.map((dataItem, row) => (
-          <div
-            className="position-relative"
-            onMouseEnter={() => {
-              if (dataItem.names || dataItem.shape)
-                setDisplayTooltip(dataItem.id);
-            }}
-            onMouseLeave={() => setDisplayTooltip(null)}
-          >
-            <div
-              key={`cell${column}:${row}`}
-              className="border d-flex flex-column justify-content-center align-items-center f-cell"
-              style={{ width: "150px", height: "100px" }}
-              onClick={(e) => {
-                if (dataItem.shape) {
-                  upperLevel.setCurrentFirstLevelDataObject(dataItem);
-                  upperLevel.setFirstLevelColAndRow(column, row);
-                  uiStore.setCurrentLevel(2);
-                }
-              }}
-            >
-              {`${dataItem.id}${
-                dataItem.names && dataItem.names.length !== 0
-                  ? `(${firstLevelDataDataNamesArrayToString(dataItem.names)})`
-                  : ""
-              }`}
-              {dataItem.names !== undefined && (
-                <input
-                  type="text"
-                  className="first-level-item-input border px-1"
-                  style={{ width: "90%" }}
-                  placeholder="Размерность"
-                  onChange={(e) => {
-                    firstLevel.updateFirstLevelDataDataField(
-                      column,
-                      row,
-                      "rawNames",
-                      e.target.value
-                    );
-                  }}
-                  value={dataItem.rawNames}
-                  onClick={(e) => e.stopPropagation()}
-                />
-              )}
-            </div>
-            <div
-              className={`animate__animated animate__fadeInRight animate__faster position-absolute p-3 ${
-                displayTooltip === dataItem.id ? "d-block" : "d-none"
-              }`}
-              style={{
-                top: "-30px",
-                right: "-260px",
-                height: "150px",
-                width: "250px",
-                zIndex: 100,
-                borderRadius: "5px",
-                backgroundColor: "rgba(255,255,255,.9)",
-                color: "black",
-                border: "1px solid rgba(0,0,0,.4)",
-                boxShadow: "0 4px 4px rgba(0,0,0,.15)",
-              }}
-              onMouseEnter={() => setDisplayTooltip(null)}
-            >
-              {dataItem.shape && getShapeView(dataItem.shape)}
-            </div>
-          </div>
-        )) || [];
-      return (
-        <div className="d-flex flex-column" key={`column${column}`}>
-          {columnContent}
-        </div>
-      );
-    });
+    const data = translateDataFromColsToRows(firstLevelData);
+    const topHeaders = firstLevelData.map(({ title }) => title);
+    const sideHeaders = [
+      "",
+      "",
+      "Объём потребления",
+      "Границы",
+      "Границы",
+      "Границы",
+    ];
+    const result = combineDataWithHeaders(data, topHeaders, sideHeaders);
+    const [showTooltip, setShowTooltip] = useState(false);
+    const [tooltipXY, setTooltipXY] = useState(["0", "0"]);
+    const [tooltipContent, setTooltipContent] = useState(null);
+    setTimeout(
+      () =>
+        Array.from(document.getElementsByClassName("cell")).forEach((el) => {
+          el.addEventListener("mouseleave", () => setShowTooltip(false));
+          el.addEventListener("click", (event) => console.log(event.ctrlKey));
+        }),
+      500
+    );
     return (
-      <div style={{ transform: "scale(0.95)" }}>
+      <div className="position-relative">
         <Names noButton />
-        <TopHeader />
-        <div className="d-flex">
-          <SideHeader />
+        <ReactDataSheet
+          data={result}
+          valueRenderer={(dataItem) =>
+            `${dataItem.id}${
+              dataItem.names && dataItem.names.length !== 0
+                ? `(${firstLevelDataDataNamesArrayToString(dataItem.names)})`
+                : ""
+            }`
+          }
+          onCellsChanged={(changes) => {
+            const { value, row, col } = changes[0];
+            firstLevel.updateFirstLevelDataDataField(
+              col - 1,
+              row - 1,
+              "rawNames",
+              value
+            );
+          }}
+          onContextMenu={(event, cell, i, j) => {
+            event.preventDefault();
+            setTooltipContent(cell.shape && getShapeView(cell.shape));
+            setTooltipXY([event.clientX, event.clientY - 50]);
+            setShowTooltip(true);
+          }}
+          dataRenderer={(dataItem) => dataItem.rawNames}
+          overflow={"wrap"}
+        />
+        {showTooltip && (
           <div
-            className="d-flex noselect"
-            style={{ cursor: "pointer", fontSize: "20px" }}
+            className={`animate__animated animate__fadeInRight animate__faster position-absolute p-3`}
+            style={{
+              top: tooltipXY[1],
+              left: tooltipXY[0],
+              height: "150px",
+              width: "250px",
+              zIndex: 100,
+              borderRadius: "5px",
+              backgroundColor: "rgba(255,255,255,.9)",
+              color: "black",
+              border: "1px solid rgba(0,0,0,.4)",
+              boxShadow: "0 4px 4px rgba(0,0,0,.15)",
+            }}
           >
-            {content}
+            {tooltipContent}
           </div>
-        </div>
+        )}
       </div>
     );
   })

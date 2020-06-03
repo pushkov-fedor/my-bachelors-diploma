@@ -5,3 +5,21 @@
 .first-level-item-input::placeholder {
   font-size: 17px;
 }
+
+input.data-editor {
+  box-sizing: content-box;
+  height: 100%;
+}
+
+.data-grid-container .data-grid .cell > input {
+  height: 100% !important;
+}
+
+.data-grid-container .data-grid {
+  width: 100%;
+  margin: auto;
+}
+
+td.read-only {
+  overflow-x: hidden;
+}

@@ -77,11 +77,11 @@ export const firstLevelData = observable([
     type: "Standart",
     extended: false,
     data: [
-      { id: "", type: "empty" },
+      { id: "", type: "empty", readOnly: true },
       { id: Y, type: "column", names: [], rawNames: "", shape: null },
-      { id: LESS, type: "single" },
-      { id: OVER, type: "single" },
-      { id: EQUAL, type: "single" },
+      { id: LESS, type: "single", readOnly: true },
+      { id: OVER, type: "single", readOnly: true },
+      { id: EQUAL, type: "single", readOnly: true },
     ],
   },
   {
@@ -92,9 +92,9 @@ export const firstLevelData = observable([
     data: [
       { id: X, type: "row", names: [], rawNames: "", shape: null },
       { id: A, type: "matrix", names: [], rawNames: "", shape: null },
-      { id: XU, type: "row" },
-      { id: XL, type: "row" },
-      { id: XE, type: "row" },
+      { id: XU, type: "row", readOnly: true },
+      { id: XL, type: "row", readOnly: true },
+      { id: XE, type: "row", readOnly: true },
     ],
   },
   {
@@ -105,9 +105,9 @@ export const firstLevelData = observable([
     data: [
       { id: Z, type: "single", names: [], rawNames: "", shape: null },
       { id: P, type: "column", names: [], rawNames: "", shape: null },
-      { id: ZU, type: "single" },
-      { id: ZL, type: "single" },
-      { id: ZE, type: "single" },
+      { id: ZU, type: "single", readOnly: true },
+      { id: ZL, type: "single", readOnly: true },
+      { id: ZE, type: "single", readOnly: true },
     ],
   },
   {
@@ -118,9 +118,9 @@ export const firstLevelData = observable([
     data: [
       { id: T, type: "row", names: [], rawNames: "", shape: null },
       { id: B, type: "matrix", names: [], rawNames: "", shape: null },
-      { id: TU, type: "row" },
-      { id: TL, type: "row" },
-      { id: TE, type: "row" },
+      { id: TU, type: "row", readOnly: true },
+      { id: TL, type: "row", readOnly: true },
+      { id: TE, type: "row", readOnly: true },
     ],
   },
   {
@@ -131,9 +131,9 @@ export const firstLevelData = observable([
     data: [
       { id: I, type: "row", names: [], rawNames: "", shape: null },
       { id: C, type: "matrix", names: [], rawNames: "", shape: null },
-      { id: IU, type: "row" },
-      { id: IL, type: "row" },
-      { id: IE, type: "row" },
+      { id: IU, type: "row", readOnly: true },
+      { id: IL, type: "row", readOnly: true },
+      { id: IE, type: "row", readOnly: true },
     ],
   },
   {
@@ -144,9 +144,9 @@ export const firstLevelData = observable([
     data: [
       { id: E, type: "row", names: [], rawNames: "", shape: null },
       { id: D, type: "matrix", names: [], rawNames: "", shape: null },
-      { id: EU, type: "row" },
-      { id: EL, type: "row" },
-      { id: EE, type: "row" },
+      { id: EU, type: "row", readOnly: true },
+      { id: EL, type: "row", readOnly: true },
+      { id: EE, type: "row", readOnly: true },
     ],
   },
   {
@@ -155,8 +155,8 @@ export const firstLevelData = observable([
     type: "Standart",
     extended: false,
     data: [
-      { id: LEO, type: "single" },
-      { id: S, type: "column" },
+      { id: LEO, type: "single", readOnly: true },
+      { id: S, type: "column", readOnly: true },
     ],
   },
   {
@@ -165,8 +165,8 @@ export const firstLevelData = observable([
     type: "Standart",
     extended: false,
     data: [
-      { id: "", type: "empty" },
-      { id: R, type: "column" },
+      { id: "", type: "empty", readOnly: true },
+      { id: R, type: "column", readOnly: true },
     ],
   },
 ]);
@@ -201,10 +201,12 @@ export const calculateShape = (data, toUpdate, copy, row, column) => {
 const throttled = lodash.throttle(calculateShape, 500);
 
 const updateFirstLevelDataDataField = (column, row, field, value) => {
+  console.log(column, row);
   const copy = toJS(firstLevelData).slice();
   const toUpdate = copy.find((col) => col.column === column);
   if (toUpdate === undefined) return;
   const data = toUpdate.data[row];
+  console.log(data);
   if (data === undefined || data[field] === undefined) return;
   data[field] = value;
   if (field === "rawNames") {
