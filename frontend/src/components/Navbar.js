@@ -4,8 +4,8 @@ import { Link } from "react-router-dom";
 export default function Navbar() {
   return (
     <nav
-      className="navbar navbar-expand-md navbar-dark bg-dark"
-      style={{ width: "100vw" }}
+      className="navbar navbar-expand-md navbar-dark bg-dark position-fixed"
+      style={{ width: "100vw", top: 0, left: 0, right: 0 }}
     >
       <div className="container">
         <Link to="/" className="navbar-brand">

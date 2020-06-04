@@ -10,6 +10,9 @@ input.data-editor {
   box-sizing: content-box;
   height: 100%;
 }
+.data-grid-container .data-grid .cell {
+  height: 25px !important;
+}
 
 .data-grid-container .data-grid .cell > input {
   height: 100% !important;
@@ -20,6 +23,7 @@ td.read-only {
 }
 
 td.cell {
+  min-height: 25px;
   max-width: 140px;
-  min-width: 75px;
+  min-width: 100px;
 }

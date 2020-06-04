@@ -26,7 +26,7 @@ export const App = inject("rootStore")(
       <Router>
         <div className="App">
           <Navbar />
-          <div className="p-2">
+          <div className="p-2 pt-5 mt-5">
             {/* <Objective />
           <SubjectTo />
           <Bounds />
