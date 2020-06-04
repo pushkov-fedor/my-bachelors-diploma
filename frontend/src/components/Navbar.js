@@ -5,7 +5,7 @@ export default function Navbar() {
   return (
     <nav
       className="navbar navbar-expand-md navbar-dark bg-dark position-fixed"
-      style={{ width: "100vw", top: 0, left: 0, right: 0 }}
+      style={{ width: "100vw", top: 0, left: 0, right: 0, zIndex: 2000 }}
     >
       <div className="container">
         <Link to="/" className="navbar-brand">

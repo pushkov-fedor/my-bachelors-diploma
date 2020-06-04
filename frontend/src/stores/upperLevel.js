@@ -1,5 +1,10 @@
-import { observable, action, when, toJS, reaction } from "mobx";
-import { generateCurrentThirdLevelModelTemplate } from "../utils/upperLevelModelStrctureGenerator";
+import { observable, action, when, toJS, reaction, autorun } from "mobx";
+import { parseFirstLevelDataNamesFilter } from "../utils/ExpParser";
+import getCurrentHeadersFomFirstLevel from "../utils/getCurrentHeadersFomFirstLevel";
+import getNameHeadersFromSecondLevelForThirdLevel from "../utils/getNameHeadersFromSecondLevelForThirdLevel";
+import { combineDataWithHeaders } from "../utils/thirdLevel";
+import { names } from "./names";
+import { firstLevelData as firstLevelDataArr } from "./firstLevel";
 
 export const firstLevelCol = observable.box(-1);
 export const firstLevelRow = observable.box(-1);
@@ -30,94 +35,98 @@ export const setCurrentRegions = action((regions) => {
   regions.forEach((region) => currentRegions.push(region));
 });
 
-export const currentThirdLevelModel = observable([]);
-export const setCurrentThirdLevelModel = action(([model]) => {
-  currentThirdLevelModel.pop();
-  currentThirdLevelModel.push(model);
+export const thirdLevelData = observable([]);
+export const setThirdLevelData = action((data) => {
+  thirdLevelData.pop();
+  thirdLevelData.push(data);
 });
 
-export const updateThirdLevelModelByOne = (value, row, col) => {
-  const { type, data } = toJS(currentThirdLevelModel)[0];
-  if (row == "-1") {
-    data[col] = value;
-    setCurrentThirdLevelModel([{ type, data }]);
-    return;
-  }
-  if (col == "-1") {
-    data[row] = value;
-    setCurrentThirdLevelModel([{ type, data }]);
-    return;
-  }
-  data[row][col] = value;
-  setCurrentThirdLevelModel([{ type, data }]);
-};
-
-export const updateThirdLevelModel = (rawInput) => {
-  let parsed = rawInput.split("\n").map((row) => row.split("\t"));
-  const { type, data } = toJS(currentThirdLevelModel)[0];
-  const newData = [...data];
-  switch (type) {
-    case "column":
-      const rowColLimitForCol = data.length;
-      if (Array.isArray(parsed[0])) {
-        for (let i = 0; i < parsed.length; i++) {
-          if (i < rowColLimitForCol) {
-            parsed[i] = parsed[i][0];
-          } else break;
-        }
-      } else {
-        parsed = [parsed[0]];
-      }
-      for (let i = 0; i < parsed.length; i++) {
-        if (i < rowColLimitForCol) {
-          newData[i] = parsed[i];
-        } else break;
-      }
-      break;
-    case "row":
-      if (Array.isArray(parsed[0])) parsed = parsed[0];
-      const rowColLimit = data.length;
-      for (let i = 0; i < parsed.length; i++) {
-        if (i < rowColLimit) {
-          newData[i] = parsed[i];
-        } else break;
-      }
-      break;
-    case "matrix":
-      const rowLimit = data.length;
-      const colLimit = data[0].length;
-      for (let i = 0; i < parsed.length; i++) {
-        if (i < rowLimit) {
-          for (let j = 0; j < parsed[i].length; j++) {
-            if (j < colLimit) {
-              newData[i][j] = parsed[i][j];
-            } else break;
-          }
-        } else break;
-      }
-      break;
-    default:
-      break;
-  }
-  setCurrentThirdLevelModel([{ type, data: newData }]);
-};
-
-export const resetThirdLevelModel = () => {
-  const thirdLevelShape = toJS(currentFirstLevelDataObject)[0].shape[1];
-  const currentThirdLevelModel = generateCurrentThirdLevelModelTemplate(
-    thirdLevelShape
-  );
-  setCurrentThirdLevelModel([currentThirdLevelModel]);
-};
+export const updateThirdLevelDataData = action((row, col, value) => {
+  const [thirdLevelDataObject] = toJS(thirdLevelData);
+  const { data } = thirdLevelDataObject;
+  data[row][col].value = value;
+  setThirdLevelData(thirdLevelDataObject);
+});
 
 reaction(
-  () => toJS(currentFirstLevelDataObject),
-  (currentFirstLevelDataObject) => {
-    const thirdLevelShape = currentFirstLevelDataObject[0].shape[1];
-    const currentThirdLevelModel = generateCurrentThirdLevelModelTemplate(
-      thirdLevelShape
+  () => [secondLevelCol.get(), secondLevelRow.get()],
+  ([secondLevelCol, secondLevelRow]) => {
+    const firstLevelData = toJS(firstLevelDataArr);
+    const currentFirstLevelDataObjectCopy = toJS(currentFirstLevelDataObject);
+
+    const [firstLevelDataObject] = currentFirstLevelDataObjectCopy;
+
+    const firstLevelColValue = firstLevelCol.get();
+    const firstLevelRowValue = firstLevelRow.get();
+
+    const secondLevelColValue = secondLevelCol;
+    const secondLevelRowValue = secondLevelRow;
+
+    const thirdLevelShape = firstLevelDataObject.shape[1];
+    const topShapeObject =
+      firstLevelData[firstLevelColValue].data[firstLevelColValue === 0 ? 1 : 0]
+        .shape[0].data;
+
+    const namesArr = toJS(names);
+    const secondLevelNamesListId = firstLevelData[firstLevelColValue].data[
+      firstLevelColValue === 0 ? 1 : 0
+    ].names[0].split("<")[0];
+    const thirdLevelNamesListId = parseFirstLevelDataNamesFilter(
+      firstLevelData[firstLevelColValue].data[firstLevelColValue === 0 ? 1 : 0]
+        .names[1]
     );
-    setCurrentThirdLevelModel([currentThirdLevelModel]);
+
+    const showTopNameHeaders =
+      thirdLevelShape.type === "row" || thirdLevelShape.type === "matrix";
+    const showSideNameHeaders =
+      thirdLevelShape.type === "column" || thirdLevelShape.type === "matrix";
+
+    const [
+      fromSecondLevelSideName,
+      fromSecondLevelTopName,
+    ] = getNameHeadersFromSecondLevelForThirdLevel(
+      namesArr,
+      topShapeObject,
+      secondLevelNamesListId,
+      secondLevelRowValue,
+      secondLevelColValue
+    );
+    const [
+      sideHeaderFromFirstLevel,
+      topHeaderFromFirstLevel,
+    ] = getCurrentHeadersFomFirstLevel(
+      firstLevelRowValue,
+      firstLevelColValue,
+      firstLevelData
+    );
+
+    const data =
+      thirdLevelShape.type === "matrix"
+        ? thirdLevelShape.data.map((row) =>
+            row.map(({ i, j }) => ({ value: "" }))
+          )
+        : thirdLevelShape.type === "row"
+        ? [thirdLevelShape.data.map(({ i, j }) => ({ value: "" }))]
+        : thirdLevelShape.data.map(({ i, j }) => [{ value: "" }]);
+
+    const result = combineDataWithHeaders(
+      data,
+      namesArr,
+      thirdLevelNamesListId,
+      thirdLevelShape.type
+    );
+
+    setThirdLevelData({
+      data: result,
+      headers: {
+        showTopNameHeaders,
+        showSideNameHeaders,
+        fromSecondLevelSideName,
+        fromSecondLevelTopName,
+        sideHeaderFromFirstLevel,
+        topHeaderFromFirstLevel,
+      },
+    });
   }
 );
 
@@ -139,11 +148,9 @@ export default {
   setCurrentFirstLevelDataObject,
   currentRegions,
   setCurrentRegions,
-  currentThirdLevelModel,
-  updateThirdLevelModel,
-  resetThirdLevelModel,
   thirdLevelColForEdit,
   thirdLevelRowForEdit,
   setThirdLevelRowAndColForEdit,
-  updateThirdLevelModelByOne,
+  thirdLevelData,
+  updateThirdLevelDataData,
 };
