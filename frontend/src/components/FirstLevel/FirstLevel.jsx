@@ -6,6 +6,7 @@ import getShapeView from "../../utils/getShapeView";
 import { firstLevelDataDataNamesArrayToString } from "../../utils/ExpParser";
 import translateDataFromColsToRows from "../../utils/translateDataFromColsToRows";
 import combineDataWithHeaders from "../../utils/combineDataWithHeaders";
+import getDataItemFromMatrixByIndex from "../../utils/getDataItemFromMatrixByIndex";
 import ReactDataSheet from "react-datasheet";
 
 export const FirstLevel = inject("rootStore")(
@@ -30,10 +31,25 @@ export const FirstLevel = inject("rootStore")(
     const [tooltipContent, setTooltipContent] = useState(null);
     setTimeout(
       () =>
-        Array.from(document.getElementsByClassName("cell")).forEach((el) => {
-          el.addEventListener("mouseleave", () => setShowTooltip(false));
-          el.addEventListener("click", (event) => console.log(event.ctrlKey));
-        }),
+        Array.from(document.getElementsByClassName("cell")).forEach(
+          (el, index) => {
+            el.addEventListener("mouseleave", () => setShowTooltip(false));
+            el.addEventListener("click", (event) => {
+              if (event.ctrlKey) {
+                const dataItem = getDataItemFromMatrixByIndex(result, index);
+                dataItem && console.log(dataItem);
+                if (dataItem && dataItem.shape) {
+                  upperLevel.setCurrentFirstLevelDataObject(dataItem);
+                  const [col, row] = firstLevel.getColAndRowByDataItem(
+                    dataItem
+                  );
+                  upperLevel.setFirstLevelColAndRow(col, row);
+                  uiStore.setCurrentLevel(2);
+                }
+              }
+            });
+          }
+        ),
       500
     );
     return (

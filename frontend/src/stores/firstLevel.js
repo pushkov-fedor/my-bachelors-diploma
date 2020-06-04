@@ -234,6 +234,21 @@ export const recalculateShapes = () => {
 export const getFirstLevelDataColumn = (column) => {
   return toJS(firstLevelData).find((c) => c.column === column) || {};
 };
+export const getColAndRowByDataItem = (dataItem) => {
+  const copy = toJS(firstLevelData);
+  let col = copy.find(
+    (col) => col.data.find((data) => data.id === dataItem.id) !== undefined
+  );
+  let row = 0;
+  for (let i = 0; i < col.data.length; i++) {
+    if (col.data[i].id === dataItem.id) {
+      row = i;
+      break;
+    }
+  }
+  col = col.column;
+  return [col, row];
+};
 
 when(
   () => true,
@@ -253,4 +268,5 @@ export default {
   setFirstLevelData,
   updateFirstLevelDataField,
   updateFirstLevelDataDataField,
+  getColAndRowByDataItem,
 };
