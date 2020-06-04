@@ -4,10 +4,16 @@ import { toJS } from "mobx";
 import getNameHeadersForSecondLevel from "../utils/getNameHeadersForSecondLevel";
 import getCurrentHeadersFomFirstLevel from "../utils/getCurrentHeadersFomFirstLevel";
 import getSecondLevelModelView from "../utils/getSecondLevelModelView";
+import {
+  combineDataWithHeaders,
+  getColRowByShapeItem,
+} from "../utils/secondLevel";
+import { isTransport } from "../utils/modelStructureGenerator";
+import ReactDataSheet from "react-datasheet";
 
 export const SecondLevel = inject("rootStore")(
   observer((props) => {
-    const { upperLevel, firstLevel, names } = props.rootStore;
+    const { upperLevel, firstLevel, names, uiStore } = props.rootStore;
     const firstLevelData = toJS(firstLevel.firstLevelData);
     const firstLevelDataObject = toJS(
       upperLevel.currentFirstLevelDataObject
@@ -28,56 +34,76 @@ export const SecondLevel = inject("rootStore")(
     const { names: listNames = [] } =
       namesArr.find((r) => r.listId === topSecondLevelNamesListId) || {};
 
-    const [sideNameHeaders, topNameHeaders] = getNameHeadersForSecondLevel(
-      listNames,
-      topDataObject
-    );
-
     const [
       sideHeaderFromFirstLevel,
       topHeaderFromFirstLevel,
     ] = getCurrentHeadersFomFirstLevel(row, col, firstLevelData);
 
-    const content = getSecondLevelModelView(
-      secondLevelShape,
-      topSecondLevelName,
-      id
+    const data =
+      secondLevelShape.type === "matrix"
+        ? secondLevelShape.data.map((row) =>
+            row.map(({ i, j }) => ({ value: i ? `${id}${i}${j}` : "", i, j }))
+          )
+        : secondLevelShape.type === "row"
+        ? [
+            secondLevelShape.data.map(({ i, j }) => ({
+              value: `${id}${i}${j ? j : ""}`,
+              i,
+              j,
+            })),
+          ]
+        : secondLevelShape.data.map(({ i, j }) => [
+            { value: `${id}${i}${j ? j : ""}`, i, j },
+          ]);
+    const result = combineDataWithHeaders(
+      data,
+      listNames,
+      topDataObject,
+      secondLevelShape.type
     );
 
-    const showTopNames =
-      secondLevelShape.type === "row" || secondLevelShape.type === "matrix";
-    const showLeftNames =
-      secondLevelShape.type === "column" || secondLevelShape.type === "matrix";
+    setTimeout(() => {
+      Array.from(document.getElementsByClassName("cell")).forEach((el, index) =>
+        el.addEventListener("click", (event) => {
+          if (event.ctrlKey) {
+            const flat = result.flat();
+            const shapeItem = flat[index];
+            if (!shapeItem.i && !shapeItem.j) return;
+            const { i, j } = shapeItem;
+            const [col, row] = getColRowByShapeItem(data, shapeItem);
+
+            upperLevel.setCurrentRegions(
+              isTransport(topSecondLevelName).is ? [i, j] : [i]
+            );
+            upperLevel.setSecondLevelColAndRow(col, row);
+            uiStore.setCurrentLevel(3);
+          }
+        })
+      );
+    }, 500);
 
     return (
-      <div className="container">
+      <div className="p-3">
         {secondLevelShape && (
           <div>
-            <div className="row py-2">
-              <div className="col-3 px-0"></div>
-              <div className="col-9 px-0 px-4">{topHeaderFromFirstLevel}</div>
-            </div>
-            {showTopNames && (
-              <div className="row py-0">
-                <div className="col-3 px-0"></div>
-                <div className="col-9 px-0 d-flex">{topNameHeaders}</div>
-              </div>
-            )}
             <div className="row">
-              <div className="col-3 px-0 d-flex align-items-start justify-content-center text-center">
-                <div className="w-50">{sideHeaderFromFirstLevel}</div>
-                {showLeftNames && (
-                  <div className="w-50 d-flex flex-column align-items-end">
-                    {sideNameHeaders}
-                  </div>
-                )}
+              <div className="col-1"></div>
+              <div className="col-11">{topHeaderFromFirstLevel}</div>
+            </div>
+            <div className="row">
+              <div className="col-1 text-center">
+                {sideHeaderFromFirstLevel}
               </div>
-              <div className="col-9 px-0 d-flex justify-content-start">
-                {content}
+              <div className="col-11">
+                <ReactDataSheet
+                  data={result}
+                  valueRenderer={(cell) => cell.value}
+                />
               </div>
             </div>
           </div>
         )}
+
         {!secondLevelShape && (
           <div className="text-center pt-4">
             Размерности для этой клетке пока не заполнены :(

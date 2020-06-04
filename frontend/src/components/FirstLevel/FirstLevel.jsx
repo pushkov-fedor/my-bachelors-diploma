@@ -37,7 +37,6 @@ export const FirstLevel = inject("rootStore")(
             el.addEventListener("click", (event) => {
               if (event.ctrlKey) {
                 const dataItem = getDataItemFromMatrixByIndex(result, index);
-                dataItem && console.log(dataItem);
                 if (dataItem && dataItem.shape) {
                   upperLevel.setCurrentFirstLevelDataObject(dataItem);
                   const [col, row] = firstLevel.getColAndRowByDataItem(

@@ -15,11 +15,11 @@ input.data-editor {
   height: 100% !important;
 }
 
-.data-grid-container .data-grid {
-  width: 100%;
-  margin: auto;
-}
-
 td.read-only {
   overflow-x: hidden;
+}
+
+td.cell {
+  max-width: 140px;
+  min-width: 75px;
 }
