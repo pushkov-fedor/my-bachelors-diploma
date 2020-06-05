@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import { inject, observer } from "mobx-react";
 import { toJS } from "mobx";
 import ReactDataSheet from "react-datasheet";
@@ -46,9 +46,13 @@ export const ThirdLevel = inject("rootStore")(
               valueRenderer={(cell) => cell.value}
               overflow={"wrap"}
               onCellsChanged={(changes) => {
-                const [first] = changes;
-                const { row, col, value } = first;
-                upperLevel.updateThirdLevelDataData(row, col, value);
+                upperLevel.updateThirdLevelDataData(changes);
+              }}
+              parsePaste={(paste) => {
+                return paste
+                  .split("\n")
+                  .filter((row) => row !== "")
+                  .map((row) => row.split("\t"));
               }}
             />
           </div>

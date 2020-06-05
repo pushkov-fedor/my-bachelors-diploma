@@ -4,6 +4,7 @@ import getCurrentHeadersFomFirstLevel from "../utils/getCurrentHeadersFomFirstLe
 import getNameHeadersFromSecondLevelForThirdLevel from "../utils/getNameHeadersFromSecondLevelForThirdLevel";
 import { combineDataWithHeaders } from "../utils/thirdLevel";
 import { names } from "./names";
+import { currentLevel } from "./uiStore";
 import { firstLevelData as firstLevelDataArr } from "./firstLevel";
 
 export const firstLevelCol = observable.box(-1);
@@ -21,6 +22,41 @@ export const setSecondLevelColAndRow = action((col, row) => {
   secondLevelCol.set(col);
   secondLevelRow.set(row);
 });
+
+export const modelData = observable([]);
+export const setModelData = action((data) => {
+  while (modelData.length > 0) modelData.pop();
+  data.forEach((data) => modelData.push(data));
+});
+export const saveModelInStorage = (model) => {
+  const firstLevelColValue = firstLevelCol.get();
+  const firstLevelRowValue = firstLevelRow.get();
+  const secondLevelColValue = secondLevelCol.get();
+  const secondLevelRowValue = secondLevelRow.get();
+  const copy = toJS(modelData);
+
+  const currentIndex = copy.findIndex(
+    ({ firstLevelCol, firstLevelRow, secondLevelCol, secondLevelRow }) =>
+      firstLevelCol === firstLevelColValue &&
+      firstLevelRow === firstLevelRowValue &&
+      secondLevelCol === secondLevelColValue &&
+      secondLevelRow === secondLevelRowValue
+  );
+  if (currentIndex !== -1) {
+    copy[currentIndex] = model;
+  } else {
+    copy.push(model);
+  }
+  setModelData(copy);
+  localStorage.setItem("modelData", JSON.stringify(copy));
+};
+when(
+  () => modelData.length === 0,
+  () => {
+    const modelDataFromStorage = JSON.parse(localStorage.getItem("modelData"));
+    if (modelDataFromStorage) setModelData(modelDataFromStorage);
+  }
+);
 
 export const currentFirstLevelDataObject = observable([]);
 export const setCurrentFirstLevelDataObject = action((current) => {
@@ -41,26 +77,57 @@ export const setThirdLevelData = action((data) => {
   thirdLevelData.push(data);
 });
 
-export const updateThirdLevelDataData = action((row, col, value) => {
+export const updateThirdLevelDataData = action((changes) => {
   const [thirdLevelDataObject] = toJS(thirdLevelData);
   const { data } = thirdLevelDataObject;
-  data[row][col].value = value;
+  changes.forEach((change) => {
+    const { row, col, value } = change;
+    data[row][col].value = value;
+  });
   setThirdLevelData(thirdLevelDataObject);
+  saveModelInStorage(thirdLevelDataObject);
 });
 
 reaction(
-  () => [secondLevelCol.get(), secondLevelRow.get()],
-  ([secondLevelCol, secondLevelRow]) => {
+  () => [
+    firstLevelCol.get(),
+    firstLevelRow.get(),
+    secondLevelCol.get(),
+    secondLevelRow.get(),
+    currentLevel.get(),
+  ],
+  ([
+    firstLevelCol,
+    firstLevelRow,
+    secondLevelCol,
+    secondLevelRow,
+    currentLevel,
+  ]) => {
+    if (currentLevel === 1) return;
     const firstLevelData = toJS(firstLevelDataArr);
     const currentFirstLevelDataObjectCopy = toJS(currentFirstLevelDataObject);
 
     const [firstLevelDataObject] = currentFirstLevelDataObjectCopy;
 
-    const firstLevelColValue = firstLevelCol.get();
-    const firstLevelRowValue = firstLevelRow.get();
+    const firstLevelColValue = firstLevelCol;
+    const firstLevelRowValue = firstLevelRow;
 
     const secondLevelColValue = secondLevelCol;
     const secondLevelRowValue = secondLevelRow;
+
+    const modelDataFromStorage = toJS(modelData);
+
+    const thirdLevelModel = modelDataFromStorage.find(
+      ({ firstLevelCol, firstLevelRow, secondLevelCol, secondLevelRow }) =>
+        firstLevelCol === firstLevelColValue &&
+        firstLevelRow === firstLevelRowValue &&
+        secondLevelCol === secondLevelColValue &&
+        secondLevelRow === secondLevelRowValue
+    );
+    if (thirdLevelModel) {
+      setThirdLevelData(thirdLevelModel);
+      return;
+    }
 
     const thirdLevelShape = firstLevelDataObject.shape[1];
     const topShapeObject =
@@ -117,6 +184,10 @@ reaction(
     );
 
     setThirdLevelData({
+      firstLevelCol: firstLevelColValue,
+      firstLevelRow: firstLevelRowValue,
+      secondLevelCol: secondLevelColValue,
+      secondLevelRow: secondLevelRowValue,
       data: result,
       headers: {
         showTopNameHeaders,
