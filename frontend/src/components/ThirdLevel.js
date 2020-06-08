@@ -4,6 +4,7 @@ import { toJS } from "mobx";
 import ReactDataSheet from "react-datasheet";
 import { NavigationCircle } from "./NavigationCircle";
 import { SelectAllButton } from "./SelectAllButton";
+import { ColumnAndRowHeadersInfo } from "./ColumnAndRowHeadersInfo";
 
 export const ThirdLevel = inject("rootStore")(
   observer((props) => {
@@ -77,6 +78,7 @@ export const ThirdLevel = inject("rootStore")(
         </div>
         <NavigationCircle />
         <SelectAllButton selectAll={selectAll} />
+        <ColumnAndRowHeadersInfo selected={selected} data={data} />
       </div>
     );
   })
