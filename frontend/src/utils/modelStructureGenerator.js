@@ -105,7 +105,6 @@ export const getTransportLength = (sign, expr, names) => {
     default:
       break;
   }
-  console.log(transportPairs);
   return { len: transportPairs.length, data: transportPairs };
 };
 
@@ -245,6 +244,7 @@ export const generateShape = (dataObject, cellId) => {
   }
 
   const { operation, left, right: top } = dataObject;
+  console.log(top);
   switch (operation) {
     case "=":
       if (left.len !== top.len) {

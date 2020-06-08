@@ -53,3 +53,9 @@ export const getColRowByShapeItem = (data, shapeItem) => {
   }
   return [col, row];
 };
+
+export const splitTransportExpr = (expr) => {
+  const signs = ["<", ">", "<>"]
+  const splitted = signs.map(sign => expr.split(sign)).find(pair => pair.length === 2)
+  return splitted ? splitted : expr
+}

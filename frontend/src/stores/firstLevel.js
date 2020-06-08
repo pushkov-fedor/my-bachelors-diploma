@@ -186,10 +186,27 @@ const updateFirstLevelDataField = (title, field, value) => {
 
 export const calculateShape = (data, toUpdate, copy, row, column) => {
   data.shape = modelStructureGenerator.getShape(column, row);
-  if ((row === 0 || (column === 0 && row === 1)) && data.shape) {
+  if (column === 0 && row === 1 && data.shape) {
     toUpdate.data = toUpdate.data.map((d, index) =>
       d.names && index >= row
         ? d
+        : Object.assign({}, d, {
+            shape: [...data.shape],
+          })
+    );
+    copy.forEach((toUpdate, index) => {
+      if (index === 0) return;
+      const data = toUpdate.data[row];
+      if (data.readOnly) return;
+      console.log(index, row);
+    });
+  }
+  if (row === 0 && data.shape) {
+    toUpdate.data = toUpdate.data.map((d, index) =>
+      d.names && index >= row
+        ? Object.assign({}, d, {
+            shape: modelStructureGenerator.getShape(column, index),
+          })
         : Object.assign({}, d, {
             shape: [...data.shape],
           })

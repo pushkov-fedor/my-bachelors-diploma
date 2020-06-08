@@ -38,3 +38,22 @@ export const combineDataWithHeaders = (
   }
   return result;
 };
+
+export const getDataHeaders = (namesArr, thirdLevelNamesListId) => {
+  let { names: nameHeadersList = [], headings = [] } =
+    namesArr.find((r) => r.listId === thirdLevelNamesListId[0]) || {};
+  const filterIndex = headings.findIndex(
+    ({ id = "" }) => id === thirdLevelNamesListId[1]
+  );
+  if (filterIndex !== -1) {
+    nameHeadersList = nameHeadersList.filter(
+      (name) => name[filterIndex] === "1"
+    );
+  }
+  const topNameHeaders = nameHeadersList.map((name) => ({
+    value: name[0],
+    readOnly: true,
+  }));
+  const sideNameHeaders = topNameHeaders.map((header) => [header]);
+  return [sideNameHeaders, [topNameHeaders]];
+};

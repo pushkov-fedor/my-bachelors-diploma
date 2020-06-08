@@ -2,6 +2,8 @@ import React, { useState } from "react";
 import { inject, observer } from "mobx-react";
 import { toJS } from "mobx";
 import ReactDataSheet from "react-datasheet";
+import { NavigationCircle } from "./NavigationCircle";
+import { SelectAllButton } from "./SelectAllButton";
 
 export const ThirdLevel = inject("rootStore")(
   observer((props) => {
@@ -17,6 +19,20 @@ export const ThirdLevel = inject("rootStore")(
       sideHeaderFromFirstLevel,
       topHeaderFromFirstLevel,
     } = headers;
+
+    const [selected, setSelected] = useState({
+      start: null,
+      end: null,
+    });
+
+    const selectAll = () => {
+      const end = { i: data.length - 1, j: data[0].length - 1 };
+      const start = {
+        i: showTopNameHeaders ? 1 : 0,
+        j: showSideNameHeaders ? 1 : 0,
+      };
+      setSelected({ start, end });
+    };
 
     return (
       <div className="">
@@ -54,9 +70,13 @@ export const ThirdLevel = inject("rootStore")(
                   .filter((row) => row !== "")
                   .map((row) => row.split("\t"));
               }}
+              selected={selected}
+              onSelect={(selected) => setSelected(selected)}
             />
           </div>
         </div>
+        <NavigationCircle />
+        <SelectAllButton selectAll={selectAll} />
       </div>
     );
   })

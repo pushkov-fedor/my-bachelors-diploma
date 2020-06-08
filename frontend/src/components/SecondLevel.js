@@ -7,6 +7,7 @@ import getSecondLevelModelView from "../utils/getSecondLevelModelView";
 import {
   combineDataWithHeaders,
   getColRowByShapeItem,
+  splitTransportExpr,
 } from "../utils/secondLevel";
 import { isTransport } from "../utils/modelStructureGenerator";
 import ReactDataSheet from "react-datasheet";
@@ -29,7 +30,7 @@ export const SecondLevel = inject("rootStore")(
       firstLevelData[col].data[col === 0 ? 1 : 0].names[0];
     const topDataObject =
       firstLevelData[col].data[col === 0 ? 1 : 0].shape[0].data;
-    const topSecondLevelNamesListId = topSecondLevelName.split("<")[0];
+    const topSecondLevelNamesListId = splitTransportExpr(topSecondLevelName)[0];
 
     const { names: listNames = [] } =
       namesArr.find((r) => r.listId === topSecondLevelNamesListId) || {};
@@ -55,6 +56,9 @@ export const SecondLevel = inject("rootStore")(
         : secondLevelShape.data.map(({ i, j }) => [
             { value: `${id}${i}${j ? j : ""}`, i, j },
           ]);
+
+    upperLevel.setSecondLevelData(data);
+
     const result = combineDataWithHeaders(
       data,
       listNames,

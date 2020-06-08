@@ -2,10 +2,11 @@ import { observable, action, when, toJS, reaction, autorun } from "mobx";
 import { parseFirstLevelDataNamesFilter } from "../utils/ExpParser";
 import getCurrentHeadersFomFirstLevel from "../utils/getCurrentHeadersFomFirstLevel";
 import getNameHeadersFromSecondLevelForThirdLevel from "../utils/getNameHeadersFromSecondLevelForThirdLevel";
-import { combineDataWithHeaders } from "../utils/thirdLevel";
+import { combineDataWithHeaders, getDataHeaders } from "../utils/thirdLevel";
 import { names } from "./names";
 import { currentLevel } from "./uiStore";
 import { firstLevelData as firstLevelDataArr } from "./firstLevel";
+import { splitTransportExpr } from "../utils/secondLevel";
 
 export const firstLevelCol = observable.box(-1);
 export const firstLevelRow = observable.box(-1);
@@ -69,6 +70,12 @@ export const currentRegions = observable([]);
 export const setCurrentRegions = action((regions) => {
   while (currentRegions.length > 0) currentRegions.pop();
   regions.forEach((region) => currentRegions.push(region));
+});
+
+export const secondLevelData = observable([]);
+export const setSecondLevelData = action((data) => {
+  secondLevelData.pop();
+  secondLevelData.push(data);
 });
 
 export const thirdLevelData = observable([]);
@@ -135,9 +142,10 @@ reaction(
         .shape[0].data;
 
     const namesArr = toJS(names);
-    const secondLevelNamesListId = firstLevelData[firstLevelColValue].data[
-      firstLevelColValue === 0 ? 1 : 0
-    ].names[0].split("<")[0];
+    const secondLevelNamesListId = splitTransportExpr(
+      firstLevelData[firstLevelColValue].data[firstLevelColValue === 0 ? 1 : 0]
+        .names[0]
+    )[0];
     const thirdLevelNamesListId = parseFirstLevelDataNamesFilter(
       firstLevelData[firstLevelColValue].data[firstLevelColValue === 0 ? 1 : 0]
         .names[1]
@@ -224,4 +232,6 @@ export default {
   setThirdLevelRowAndColForEdit,
   thirdLevelData,
   updateThirdLevelDataData,
+  secondLevelData,
+  setSecondLevelData,
 };
