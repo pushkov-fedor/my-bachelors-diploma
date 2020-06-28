@@ -24,7 +24,7 @@ export function NamesInputHeadings(props) {
             : { id: left, name: right };
         })
     );
-  }, [headingsRaw, props]);
+  }, [headingsRaw]);
   return (
     <textarea
       className="w-100"
